@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.rattrap.utils.Log4JConfigurationHelper;
 import com.rattrap.utils.LogConfig;
 import org.apache.commons.io.IOUtils;
@@ -40,7 +41,7 @@ public class Test {
 				outputDir.mkdirs();
 			}
 			
-			final LaserPlanGenerator laserPlanGenerator = new LaserPlanGenerator(new FileResource(variablesFile), new FileResource(sourceFile), new FileResource(outputConfigFile));
+			final LaserPlanGenerator laserPlanGenerator = new LaserPlanGenerator(Maps.<String, String>newHashMap(), new FileResource(variablesFile), new FileResource(sourceFile), new FileResource(outputConfigFile), false);
 			
 			for (final Resource laserPlan : laserPlanGenerator.getLaserPlan()) {
 				final InputStream laserInputStream = laserPlan.open();

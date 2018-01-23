@@ -75,22 +75,22 @@
 						<div class="row">
 
 							<!-- BEGIN SITE ACTIVITY -->
-							<div class="col-md-5 col-sm-5">
-								<div class="card ">
+							<div class="col-md-3 col-sm-6">
+								<div class="card card-underline">
 									<div class="card-head">
 										<header ng-bind="project.title"></header>
 									</div><!--end .card-head -->
-									<div class="card-body" >
-										<img src="{{project.thumbnailurl}}" ng-model="project.thumbnail" value="{{project.thumbnailurl}}" width="430"/>
+									<div class="card-body">
+										<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" ng-model="project.thumbnail" value="{{project.thumbnailurl}}" width="100%"/>
 									</div>
 								</div>
 							</div>
-							<div class="col-md-5 col-sm-5">
-								<div class="card">
+							<div class="col-md-4 col-sm-6">
+								<div class="card card-underline">
 									<div class="card-head">
 										<header>Project presentation</header>
 									</div>
-									<div class="card-body" ng-bind="project.presentation">
+									<div class="card-body" ng-bind-html="project.presentation">
 									</div><!--end .card-body -->
 								</div>
 							</div><!--end .col -->
@@ -100,8 +100,8 @@
 						<div class="row">
 
 							<!-- BEGIN TODOS -->
-							<div class="col-md-5">
-								<div class="card ">
+							<div class="col-md-3">
+								<div class="card card-underline">
 									<div class="card-head">
 										<header>Shape preview</header>
 									</div><!--end .card-head -->
@@ -109,8 +109,8 @@
 									</div><!--end .card-body -->
 								</div><!--end .card -->
 							</div><!--end .col -->
-							<div class="col-md-5">
-								<div class="card ">
+							<div class="col-md-4">
+								<div class="card card-underline">
 									<div class="card-head">
 										<header>Parameters</header>
 									</div><!--end .card-head -->
@@ -162,7 +162,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	$scope.messages = "Loading...";
 	$scope.project = emptyProject;
 	
-	projectManager.load($scope, $http, projectId);
+	projectManager.load($sce, $scope, $http, projectId);
 	
 	var renderPostBody = {
 		projectid: projectId,
@@ -183,7 +183,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	};
 	
 	$scope.reset = function() {
-		projectManager.load($scope, $http, projectId);
+		projectManager.load($sce, $scope, $http, projectId);
 		var renderPostBody = {
 			projectid: projectId,
 			width: 470,
@@ -251,10 +251,11 @@ app.factory('renderDynamic', function () {
 
 app.factory('projectManager', function () {
 	return {
-		load: function($scope, $http, projectId) {
+		load: function($sce, $scope, $http, projectId) {
 			$http.get('http://localhost:8090/project?id=' + projectId).
 				then(function successCallback(response) {
 					$scope.project = response.data;
+					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);
 			}, function errorCallback(response){
 					$scope.project.name = "Error";
 					console.log("Unable to perform get request");

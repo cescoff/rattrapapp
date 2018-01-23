@@ -69,7 +69,7 @@ public class RenderApiController implements RenderApi {
 
         final Iterable<com.edraw.Resource> renderedFiles;
         try {
-            renderedFiles = projectGenerator.generateProject(parameters.build());
+            renderedFiles = projectGenerator.generateProject(parameters.build(), false);
         } catch (Exception e) {
             logger.error("Failed to render dynamic preview on project with id '" + body.getProjectid() + "'", e);
             return new ResponseEntity<Resource>(HttpStatus.INTERNAL_SERVER_ERROR);

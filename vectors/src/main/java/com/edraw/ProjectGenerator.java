@@ -188,7 +188,7 @@ public class ProjectGenerator {
 		if (this.dynamicPreviewResource == null) {
 			return null;
 		}
-		for (final Resource resource : generateProjectOutput(newVariables, this.dynamicPreviewResource, this.dynamicPreviewOutputResource)) {
+		for (final Resource resource : generateProjectOutput(newVariables, this.dynamicPreviewResource, this.dynamicPreviewOutputResource, false)) {
 			if ("svg".equalsIgnoreCase(FilenameUtils.getExtension(resource.getName()))) {
 				final InputStreamReader inputStreamReader = new InputStreamReader(resource.open());
 				final LineIterator lineIterator = new LineIterator(inputStreamReader);
@@ -214,12 +214,12 @@ public class ProjectGenerator {
 		return null;
 	}
 
-	public Iterable<Resource> generateProject(final Map<String, String> newVariables) throws Exception {
+	public Iterable<Resource> generateProject(final Map<String, String> newVariables, final boolean skipOutputTransformations) throws Exception {
 		init();
-		return generateProjectOutput(newVariables, this.templateResource, this.outputConfigResource);
+		return generateProjectOutput(newVariables, this.templateResource, this.outputConfigResource, skipOutputTransformations);
 	}
 
-	private Iterable<Resource> generateProjectOutput(final Map<String, String> newVariables, final Resource localTemplateResource, final Resource localOutputResource) throws Exception {
+	private Iterable<Resource> generateProjectOutput(final Map<String, String> newVariables, final Resource localTemplateResource, final Resource localOutputResource, final boolean skipOutputTransformations) throws Exception {
 		init();
 		final Variables variables;
 
@@ -255,7 +255,13 @@ public class ProjectGenerator {
 
 		final Resource customVariablesResource = new JAXBResource<Variables>("Custom" + variablesResource.getName(), variables);
 
-		return new LaserPlanGenerator(customVariablesResource, localTemplateResource, localOutputResource).getLaserPlan();
+		final ImmutableMap.Builder<String, String> variableTranslations = ImmutableMap.builder();
+
+		for (final DefaultVariableConfig defaultVariableConfig : this.config.getDefaultVariablesValues()) {
+			variableTranslations.put(defaultVariableConfig.getName(), defaultVariableConfig.getDisplayName());
+		}
+
+		return new LaserPlanGenerator(variableTranslations.build(), customVariablesResource, localTemplateResource, localOutputResource, skipOutputTransformations).getLaserPlan();
 	}
 
 	public Map<String, String> getVariables() {
@@ -313,19 +319,5 @@ public class ProjectGenerator {
 		return thumbnailURL;
 	}
 
-	public static  void main(String[] args) throws Exception {
-		final URLResource projectURL = new URLResource("https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml");
-		final ProjectGenerator generator = new ProjectGenerator(projectURL);
-		final File outputDir = new File("C:\\Users\\g3q\\Desktop\\Perso\\CHAIR2\\output");
-		for (final Resource resource : generator.generateProject(Maps.<String, String>newHashMap())) {
-			final File outputFile = new File(outputDir, resource.getName());
-			final FileOutputStream fos = new FileOutputStream(outputFile);
-			try {
-				IOUtils.copy(resource.open(), fos);
-			} finally {
-				fos.close();
-			}
-		}
-	}
 
 }

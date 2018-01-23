@@ -144,6 +144,10 @@ public class ConfigurableVariablesContext implements VarContext {
 			}
 		}
 
+		if (this.expressionContext.containsKey(expression)) {
+			return this.expressionContext.get(expression);
+		}
+
 		return evalExpr("", expression);
 	}
 

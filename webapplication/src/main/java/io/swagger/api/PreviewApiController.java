@@ -66,6 +66,7 @@ public class PreviewApiController implements PreviewApi {
             }
         }
         try {
+            projectGenerator.generateProject(parameters.build(), false);
             return new ResponseEntity<Resource>(SwaggerUtils.SpringResource(projectGenerator.generateThumbnail(parameters.build(), body.getWidth(), body.getHeight())), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Failed to render dynamic preview on project with id '" + body.getProjectid() + "'", e);
