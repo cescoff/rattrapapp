@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/rattrap.iml" filepath="$PROJECT_DIR$/rattrap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/utils/utils.iml" filepath="$PROJECT_DIR$/utils/utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vectors/vectors.iml" filepath="$PROJECT_DIR$/vectors/vectors.iml" />
+      <module fileurl="file://$PROJECT_DIR$/webapplication/webapplication.iml" filepath="$PROJECT_DIR$/webapplication/webapplication.iml" />
+    </modules>
+  </component>
+</project>
