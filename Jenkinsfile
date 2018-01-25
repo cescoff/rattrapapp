@@ -26,6 +26,12 @@ pipeline {
                         cp -r standalonepackager/target/standalone-packager-1.0-SNAPSHOT-html/standalone-packager-1.0-SNAPSHOT/www/* /var/www/rattrapchair/
                     '''
                     echo "Done copying html files"
+                    echo "Deploying app server"
+                    sh '''
+                        cp -r standalonepackager/target/standalone-packager-1.0-SNAPSHOT-server/lib /var/lib/jenkins/rattrapserver/
+                        /var/lib/jenkins/rattrapserver/refresh.sh
+                    '''
+                    echo 'Done refreshing app server'
                 }
             }        
         }
