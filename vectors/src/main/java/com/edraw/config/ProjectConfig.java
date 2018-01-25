@@ -47,7 +47,10 @@ public class ProjectConfig {
 
 	@XmlElementWrapper(name = "default") @XmlElement(name = "variable") 
 	private Collection<DefaultVariableConfig> defaultVariablesValues = Lists.newArrayList();
-	
+
+	@XmlElementWrapper(name = "printable") @XmlElement(name = "variable")
+	private Collection<DefaultVariableConfig> printableVariablesValues = Lists.newArrayList();
+
 	public ProjectConfig() {
 		super();
 	}
@@ -102,6 +105,10 @@ public class ProjectConfig {
 		return defaultVariablesValues;
 	}
 
+	public Collection<DefaultVariableConfig> getPrintableVariablesValues() {
+		return printableVariablesValues;
+	}
+
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class DefaultVariableConfig {
 		
@@ -110,6 +117,9 @@ public class ProjectConfig {
 
 		@XmlAttribute(name =  "display-name")
 		private String displayName;
+
+		@XmlAttribute(name = "unit")
+		private String unit;
 
 		@XmlAttribute
 		private String description;
@@ -121,10 +131,11 @@ public class ProjectConfig {
 			super();
 		}
 
-		public DefaultVariableConfig(String name, String displayName, String description, String value) {
+		public DefaultVariableConfig(String name, String displayName, String unit, String description, String value) {
 			super();
 			this.name = name;
 			this.displayName = displayName;
+			this.unit = unit;
 			this.description = description;
 			this.value = value;
 		}
@@ -141,6 +152,8 @@ public class ProjectConfig {
 			return displayName;
 		}
 
+		public String getUnit() { return this.unit; }
+
 		public String getDescription() {
 			return description;
 		}
@@ -154,11 +167,11 @@ public class ProjectConfig {
 		projectConfig.dynamicPreviewURL = "https://raw.githubusercontent.com/cescoff/rattrapchair/master/chair_ShapeOutputConfig.xml";
 		projectConfig.thumbnailURL = "https://www.amazon.com/photos/share/KrAbRlo7ONp7tepYRq1wSZaWv2HNM3j4lp5JJHNR0ob";
 
-		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatHeight", "Seat height", "The height of the seat. In millimeters", "460"));
-		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatLength", "Seat length", "The length of the seat. In millimeters", "310"));
-		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatwidth", "Seat width", "The width of the seat. In millimeters", "320"));
-		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullUpright", "Chair upright", "The upright of the chair. In millimeters", "50"));
-		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("alphaDeg", "Back angle", "The angle of the back of the chair (regarding vertical line). In degrees", "17"));
+		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatHeight", "Seat height", "mm", "The height of the seat. In millimeters", "460"));
+		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatLength", "Seat length", "mm", "The length of the seat. In millimeters", "310"));
+		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullSeatwidth", "Seat width", "mm", "The width of the seat. In millimeters", "320"));
+		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("fullUpright", "Chair upright", "mm", "The upright of the chair. In millimeters", "50"));
+		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("alphaDeg", "Back angle", "degrees", "The angle of the back of the chair (regarding vertical line). In degrees", "17"));
 
 		System.out.println(JAXBUtils.marshal(projectConfig, true));
 	}

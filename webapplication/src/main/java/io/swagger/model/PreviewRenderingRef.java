@@ -16,7 +16,7 @@ import javax.validation.constraints.*;
  * Reference to a given preview
  */
 @ApiModel(description = "Reference to a given preview")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-15T11:07:36.062Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-25T10:38:37.158Z")
 
 public class PreviewRenderingRef   {
   @JsonProperty("projectid")
@@ -72,6 +72,9 @@ public class PreviewRenderingRef   {
 
   @JsonProperty("height")
   private Integer height = null;
+
+  @JsonProperty("enableSplitters")
+  private Boolean enableSplitters = null;
 
   @JsonProperty("parameters")
   private List<ProjectParameter> parameters = null;
@@ -216,6 +219,26 @@ public class PreviewRenderingRef   {
     this.height = height;
   }
 
+  public PreviewRenderingRef enableSplitters(Boolean enableSplitters) {
+    this.enableSplitters = enableSplitters;
+    return this;
+  }
+
+   /**
+   * If set to false the output splitters will not be applied
+   * @return enableSplitters
+  **/
+  @ApiModelProperty(value = "If set to false the output splitters will not be applied")
+
+
+  public Boolean getEnableSplitters() {
+    return enableSplitters;
+  }
+
+  public void setEnableSplitters(Boolean enableSplitters) {
+    this.enableSplitters = enableSplitters;
+  }
+
   public PreviewRenderingRef parameters(List<ProjectParameter> parameters) {
     this.parameters = parameters;
     return this;
@@ -262,12 +285,13 @@ public class PreviewRenderingRef   {
         Objects.equals(this.format, previewRenderingRef.format) &&
         Objects.equals(this.width, previewRenderingRef.width) &&
         Objects.equals(this.height, previewRenderingRef.height) &&
+        Objects.equals(this.enableSplitters, previewRenderingRef.enableSplitters) &&
         Objects.equals(this.parameters, previewRenderingRef.parameters);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(projectid, url, outputformat, name, format, width, height, parameters);
+    return Objects.hash(projectid, url, outputformat, name, format, width, height, enableSplitters, parameters);
   }
 
   @Override
@@ -282,6 +306,7 @@ public class PreviewRenderingRef   {
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    width: ").append(toIndentedString(width)).append("\n");
     sb.append("    height: ").append(toIndentedString(height)).append("\n");
+    sb.append("    enableSplitters: ").append(toIndentedString(enableSplitters)).append("\n");
     sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
     sb.append("}");
     return sb.toString();

@@ -2,10 +2,9 @@ package com.edraw;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.rattrap.utils.JAXBUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,7 +26,9 @@ import com.google.common.collect.Iterables;
 
 public class LaserPlanGenerator {
 
-    private final Map<String, String> variablesTranslations;
+    private final Map<String, VariableTranslation> userVariablesTranslations;
+
+	private final Map<String, VariableTranslation> printableVariablesTranslations;
 
 	private final Resource variables;
 	
@@ -37,12 +38,14 @@ public class LaserPlanGenerator {
 
 	private final boolean skipOutputTransformations;
 
-	public LaserPlanGenerator(Map<String, String> variablesTranslations,
+	public LaserPlanGenerator(Map<String, VariableTranslation> userVariablesTranslations,
+							  Map<String, VariableTranslation> printableVariablesTranslations,
                               Resource variables, Resource template,
                               Resource outputConfig,
                               boolean skipOutputTransformations) {
 		super();
-		this.variablesTranslations = variablesTranslations;
+		this.userVariablesTranslations = userVariablesTranslations;
+		this.printableVariablesTranslations = printableVariablesTranslations;
 		this.variables = variables;
 		this.template = template;
 		this.outputConfig = outputConfig;
@@ -110,10 +113,34 @@ public class LaserPlanGenerator {
 	}
 
 	private Resource getReadmeHtml(final VarContext varContext) throws Exception {
-	    final StringBuilder result = new StringBuilder("<html>\n\n\t<head>\n\t\t<title>Project summary</title>\n\t</head>\n\n\t<body>\n\n\t\t<h1>Variables and values:</h1>\n\n\t\t<ul>\n");
-	    for (final String varName : this.variablesTranslations.keySet()) {
-	        result.append("\t\t\t<li>").append(this.variablesTranslations.get(varName)).append(" : ").append(varContext.evaluate(varName)).append("</li>\n");
+	    final StringBuilder result = new StringBuilder("<html>\n\n\t<head>\n\t\t<title>Project summary</title>\n\t</head>\n\n\t<body>\n\n\t\t<h1>User variables and values:</h1>\n\n\t\t<ul>\n");
+	    for (final String varName : this.userVariablesTranslations.keySet()) {
+	    	final String label = this.userVariablesTranslations.get(varName).getLabel(Locale.US);
+	    	final String unit;
+	    	if (this.userVariablesTranslations.get(varName).getUnit(Locale.US).isPresent()) {
+	    		unit = " " + this.userVariablesTranslations.get(varName).getUnit(Locale.US).get();
+			} else {
+	    		unit = "";
+			}
+	        result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName)).append(unit).append("</li>\n");
         }
+		result.append("\t\t</ul>");
+
+        if (this.printableVariablesTranslations != null && !this.printableVariablesTranslations.isEmpty()) {
+			result.append("\t\t<h1>Project output variables and values:</h1>\n\n\t\t<ul>\n");
+			for (final String varName : this.printableVariablesTranslations.keySet()) {
+				final String label = this.printableVariablesTranslations.get(varName).getLabel(Locale.US);
+				final String unit;
+				if (this.printableVariablesTranslations.get(varName).getUnit(Locale.US).isPresent()) {
+					unit = " " + this.printableVariablesTranslations.get(varName).getUnit(Locale.US).get();
+				} else {
+					unit = "";
+				}
+				result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName)).append(unit).append("</li>\n");
+			}
+			result.append("\t\t</ul>");
+		}
+
         result.append("</body>");
         return new StringResource("README.html", result.toString());
     }

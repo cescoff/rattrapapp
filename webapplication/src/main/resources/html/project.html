@@ -31,8 +31,8 @@
 					<ul class="header-nav header-nav-options">
 						<li class="header-nav-brand" >
 							<div class="brand-holder">
-								<a href="../../html/dashboards/dashboard.html">
-									<span class="text-lg text-bold text-primary">Rat Traps</span>
+								<a href="home.html">
+									<span class="text-lg text-bold text-primary">Rat Trappers</span>
 								</a>
 							</div>
 						</li>
@@ -81,7 +81,7 @@
 										<header ng-bind="project.title"></header>
 									</div><!--end .card-head -->
 									<div class="card-body">
-										<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" ng-model="project.thumbnail" value="{{project.thumbnailurl}}" width="100%"/>
+										<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" width="100%"/>
 									</div>
 								</div>
 							</div>
@@ -91,6 +91,7 @@
 										<header>Project presentation</header>
 									</div>
 									<div class="card-body" ng-bind-html="project.presentation">
+									<!--div class="card-body"-->
 									</div><!--end .card-body -->
 								</div>
 							</div><!--end .col -->
@@ -116,14 +117,21 @@
 									</div><!--end .card-head -->
 									<div class="card-body">
 											<form class="form">
+												<div class="checkbox checkbox-styled">
+													<label>
+														<input type="checkbox" ng-model="enableSplitters" class="form-control">
+														<span>Enable output splitters</span>
+													</label>
+													<p class="help-block">If checked the graphics will be split to match you laser cut length</p>
+												</div>
 												<div class="form-group" ng-repeat="parameter in project.parameters">
 															<input ng-model="parameter.value" type="text" class="form-control">
 															<label>{{parameter.displayname}}</label>
 															<p class="help-block">{{parameter.description}}</p>
 												</div>
-											<button ng-click="preview()" class="btn btn-info">Preview</button>
-											<button ng-click="downloadZip()" class="btn btn-info">Download</button>
-											<button ng-click="reset()" class="btn btn-info">Reset</button>
+												<button ng-click="preview()" class="btn btn-info">Preview</button>
+												<button ng-click="downloadZip()" class="btn btn-info">Download</button>
+												<button ng-click="reset()" class="btn btn-info">Reset</button>
 											</form>
 									</div>
 								</div>
@@ -134,10 +142,68 @@
 				</section>
 
 			</div>
+
+			<!-- BEGIN MENUBAR-->
+			<div id="menubar" class="menubar-inverse ">
+				<div class="menubar-fixed-panel">
+					<div>
+						<a class="btn btn-icon-toggle btn-default menubar-toggle" data-toggle="menubar" href="javascript:void(0);">
+							<i class="fa fa-bars"></i>
+						</a>
+					</div>
+					<div class="expanded">
+						<a href="home.html">
+							<span class="text-lg text-bold text-primary ">Home</span>
+						</a>
+					</div>
+				</div>
+				<div class="menubar-scroll-panel">
+
+					<!-- BEGIN MAIN MENU -->
+					<ul id="main-menu" class="gui-controls">
+
+						<!-- BEGIN DASHBOARD -->
+						<li>
+							<a href="home.html" class="active">
+								<div class="gui-icon"><i class="md md-home"></i></div>
+								<span class="title">Home</span>
+							</a>
+						</li><!--end /menu-li -->
+						<!-- END DASHBOARD -->
+
+						<!-- BEGIN UI -->
+						<li class="gui-folder">
+							<a href="projects.html">
+								<div class="gui-icon"><i class="md md-computer"></i></div>
+								<span class="title">Projects</span>
+							</a>
+						</li>
+						<li class="gui-folder">
+							<a href="about.html">
+								<div class="gui-icon"><i class="fa fa-puzzle-piece fa-fw"></i></div>
+								<span class="title">About</span>
+							</a>
+						</li><!--end /menu-li -->
+						<!-- END UI -->
+
+					</ul><!--end .main-menu -->
+					<!-- END MAIN MENU -->
+
+					<div class="menubar-foot-panel">
+						<small class="no-linebreak hidden-folded">
+							<span class="opacity-75">Copyright &copy; 2018</span> <strong>Rat Trappers</strong>
+						</small>
+					</div>
+				</div><!--end .menubar-scroll-panel-->
+			</div><!--end #menubar-->
+			<!-- END MENUBAR -->
+
 		</div>
 		<script>
 
 var app = angular.module("Rattrap", []);
+
+app.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
 
 app.controller("ProjectPresentation", function($scope, $http, $sce, $location, projectManager, renderDynamic) {
 //fc98a674c91db1ff77e067f900aaa427
@@ -154,17 +220,20 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	}
 
 	var emptyProject = {
-		name: "Loading...",
-		presentation: "Loading...",
+		title: "Loading...",
+		presentation: $sce.trustAsHtml("Loading..."),
 		parameters: parameters,
-		thumbnailurl: "temp_thumbnail.jpeg",
+		thumbnailurl: "assets/img/loading.gif",
 	};
 	$scope.messages = "Loading...";
 	$scope.project = emptyProject;
-	
+	$scope.dynamicPreview = $sce.trustAsHtml("<img src=\"assets/img/loading.gif\" />");
+	$scope.enableSplitters = true;
+
 	projectManager.load($sce, $scope, $http, projectId);
 	
 	var renderPostBody = {
+		title: $scope.project.name,
 		projectid: projectId,
 		width: 470,
 		height: 470
@@ -174,6 +243,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	
 	$scope.preview = function() {
 		var customRenderPostBody = {
+			name: $scope.project.title,
 			projectid: projectId,
 			width: 470,
 			height: 470,
@@ -185,20 +255,23 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	$scope.reset = function() {
 		projectManager.load($sce, $scope, $http, projectId);
 		var renderPostBody = {
+			name: $scope.project.title,
 			projectid: projectId,
 			width: 470,
 			height: 470
 		}
-	
+		$scope.enableSplitters = true;
 		renderDynamic.preview(renderPostBody, debug, $scope, $http, $sce);
 	};
 	
 	$scope.downloadZip = function() {
 		var customRenderPostBody = {
+			name: $scope.project.title,
 			projectid: projectId,
 			width: 470,
 			height: 470,
-			parameters: $scope.project.parameters
+			parameters: $scope.project.parameters,
+			enableSplitters: $scope.enableSplitters
 		}
 		renderDynamic.export(customRenderPostBody, debug, $scope, $http, $sce);
 	};
@@ -212,20 +285,26 @@ app.factory('renderDynamic', function () {
 	return {
 		preview: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering preview...";
-			$http.post('http://localhost:8090/preview', renderPostBody).
+			$http.post('http://localhost:8090/api/preview', renderPostBody).
 			then(function successCallback(response) {
 				$scope.dynamicPreview = $sce.trustAsHtml(response.data);
 				if (debug) {
 					console.log("'" + response.data + "'");
 				}
 			}, function errorCallback(response){
-				$scope.dynamicPreview = $sce.trustAsHtml("Your chair parameters are invalid. Your chair will not be stable");
+				var errorMessage = response.headers('RenderingError');
+				console.log("Header:"+errorMessage);
+				if (errorMessage != null && errorMessage != '') {
+					$scope.dynamicPreview = $sce.trustAsHtml("Parameters are invalid : " + errorMessage);
+				} else {
+					$scope.dynamicPreview = $sce.trustAsHtml("Your chair parameters are invalid. Your chair will not be stable");
+				}
 			});
 			$scope.messages = "";
 		},
 		export: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering project...";
-			$http.post('http://localhost:8090/render', renderPostBody, {
+			$http.post('http://localhost:8090/api/render', renderPostBody, {
 				dataType : "binary",
 				processData : false,
 				accept:'application/zip',
@@ -235,9 +314,12 @@ app.factory('renderDynamic', function () {
 				var file = new Blob([response.data], {type: "application/octet-stream"})
 				var url = window.URL.createObjectURL(file);
 
+				var currentDateTime = new Date();
+				var dateTimeSuffix = '_' + currentDateTime.getFullYear() + '-' + (currentDateTime.getMonth() + 1) + '-' + currentDateTime.getDate() + '_' + currentDateTime.getHours() + 'h-' + currentDateTime.getMinutes() + 'm';
+
 				var doc = document.createElement("a");
 				doc.href = url;
-				doc.download = renderPostBody.projectid + ".zip";
+				doc.download = $scope.project.title.replace(/\s/g, '_') + dateTimeSuffix + ".zip";
 				doc.click();
 				window.URL.revokeObjectURL(url);			
 			}, function errorCallback(response){
@@ -252,7 +334,7 @@ app.factory('renderDynamic', function () {
 app.factory('projectManager', function () {
 	return {
 		load: function($sce, $scope, $http, projectId) {
-			$http.get('http://localhost:8090/project?id=' + projectId).
+			$http.get('http://localhost:8090/api/project?id=' + projectId).
 				then(function successCallback(response) {
 					$scope.project = response.data;
 					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);
@@ -265,5 +347,37 @@ app.factory('projectManager', function () {
 
 });
 		</script>
-</body>
+
+
+		<!-- BEGIN JAVASCRIPT -->
+		<script src="assets/js/libs/jquery/jquery-1.11.2.min.js"></script>
+		<script src="assets/js/libs/jquery/jquery-migrate-1.2.1.min.js"></script>
+		<script src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
+		<script src="assets/js/libs/spin.js/spin.min.js"></script>
+		<script src="assets/js/libs/autosize/jquery.autosize.min.js"></script>
+		<script src="assets/js/libs/moment/moment.min.js"></script>
+		<script src="assets/js/libs/flot/jquery.flot.min.js"></script>
+		<script src="assets/js/libs/flot/jquery.flot.time.min.js"></script>
+		<script src="assets/js/libs/flot/jquery.flot.resize.min.js"></script>
+		<script src="assets/js/libs/flot/jquery.flot.orderBars.js"></script>
+		<script src="assets/js/libs/flot/jquery.flot.pie.js"></script>
+		<script src="assets/js/libs/flot/curvedLines.js"></script>
+		<script src="assets/js/libs/jquery-knob/jquery.knob.min.js"></script>
+		<script src="assets/js/libs/sparkline/jquery.sparkline.min.js"></script>
+		<script src="assets/js/libs/nanoscroller/jquery.nanoscroller.min.js"></script>
+		<script src="assets/js/libs/d3/d3.min.js"></script>
+		<script src="assets/js/libs/d3/d3.v3.js"></script>
+		<script src="assets/js/libs/rickshaw/rickshaw.min.js"></script>
+		<script src="assets/js/core/source/App.js"></script>
+		<script src="assets/js/core/source/AppNavigation.js"></script>
+		<script src="assets/js/core/source/AppOffcanvas.js"></script>
+		<script src="assets/js/core/source/AppCard.js"></script>
+		<script src="assets/js/core/source/AppForm.js"></script>
+		<script src="assets/js/core/source/AppNavSearch.js"></script>
+		<script src="assets/js/core/source/AppVendor.js"></script>
+		<script src="assets/js/core/demo/Demo.js"></script>
+		<script src="assets/js/core/demo/DemoDashboard.js"></script>
+		<!-- END JAVASCRIPT -->
+
+	</body>
 </html>

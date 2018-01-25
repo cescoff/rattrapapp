@@ -20,6 +20,7 @@ import com.edraw.config.Variables.VariableDefinition;
 import com.edraw.impl.JAXBResource;
 import com.edraw.impl.StringResource;
 import com.edraw.impl.URLResource;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -255,13 +256,36 @@ public class ProjectGenerator {
 
 		final Resource customVariablesResource = new JAXBResource<Variables>("Custom" + variablesResource.getName(), variables);
 
-		final ImmutableMap.Builder<String, String> variableTranslations = ImmutableMap.builder();
+		final ImmutableMap.Builder<String, VariableTranslation> userVariableTranslations = ImmutableMap.builder();
 
 		for (final DefaultVariableConfig defaultVariableConfig : this.config.getDefaultVariablesValues()) {
-			variableTranslations.put(defaultVariableConfig.getName(), defaultVariableConfig.getDisplayName());
+			userVariableTranslations.put(defaultVariableConfig.getName(), getTranslation(defaultVariableConfig));
 		}
 
-		return new LaserPlanGenerator(variableTranslations.build(), customVariablesResource, localTemplateResource, localOutputResource, skipOutputTransformations).getLaserPlan();
+		final ImmutableMap.Builder<String, VariableTranslation> printableVariableTranslations = ImmutableMap.builder();
+
+		for (final DefaultVariableConfig defaultVariableConfig : this.config.getPrintableVariablesValues()) {
+			printableVariableTranslations.put(defaultVariableConfig.getName(), getTranslation(defaultVariableConfig));
+		}
+
+		return new LaserPlanGenerator(userVariableTranslations.build(), printableVariableTranslations.build(), customVariablesResource, localTemplateResource, localOutputResource, skipOutputTransformations).getLaserPlan();
+	}
+
+	private VariableTranslation getTranslation(final DefaultVariableConfig config) {
+		return new VariableTranslation() {
+			@Override
+			public String getLabel(Locale locale) {
+				return config.getDisplayName();
+			}
+
+			@Override
+			public Optional<String> getUnit(Locale locale) {
+				if (StringUtils.isEmpty(config.getUnit())) {
+					return Optional.absent();
+				}
+				return Optional.of(config.getUnit());
+			}
+		};
 	}
 
 	public Map<String, String> getVariables() {
