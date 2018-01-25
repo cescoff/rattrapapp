@@ -27,6 +27,7 @@
                         <configuration>
                             <descriptors>
                                 <descriptor>src/assembly/appserver.xml</descriptor>
+                                <descriptor>src/assembly/webserver.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
