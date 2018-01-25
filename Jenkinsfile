@@ -21,6 +21,11 @@ pipeline {
             post {
                 success {
                     echo "SUCCESS"
+                    echo "Copying html files"
+                    sh '''
+                        cp -r standalonepackager/target/standalone-packager-1.0-SNAPSHOT-html/standalone-packager-1.0-SNAPSHOT/www/* /var/www/rattrapchair/
+                    '''
+                    echo "Done copying html files"
                 }
             }        
         }
