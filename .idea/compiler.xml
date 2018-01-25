@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="standalonepackager" />
         <module name="utils" />
         <module name="vectors" />
         <module name="webapplication" />
@@ -14,6 +15,7 @@
     <bytecodeTargetLevel>
       <module name="api" target="1.5" />
       <module name="rattrap" target="1.5" />
+      <module name="standalonepackager" target="1.5" />
       <module name="utils" target="1.5" />
       <module name="vectors" target="1.6" />
       <module name="webapplication" target="1.8" />
