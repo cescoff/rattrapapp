@@ -285,7 +285,7 @@ app.factory('renderDynamic', function () {
 	return {
 		preview: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering preview...";
-			$http.post('http://localhost:8090/api/preview', renderPostBody).
+			$http.post('/api/preview', renderPostBody).
 			then(function successCallback(response) {
 				$scope.dynamicPreview = $sce.trustAsHtml(response.data);
 				if (debug) {
@@ -304,7 +304,7 @@ app.factory('renderDynamic', function () {
 		},
 		export: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering project...";
-			$http.post('http://localhost:8090/api/render', renderPostBody, {
+			$http.post('/api/render', renderPostBody, {
 				dataType : "binary",
 				processData : false,
 				accept:'application/zip',
@@ -334,7 +334,7 @@ app.factory('renderDynamic', function () {
 app.factory('projectManager', function () {
 	return {
 		load: function($sce, $scope, $http, projectId) {
-			$http.get('http://localhost:8090/api/project?id=' + projectId).
+			$http.get('/api/project?id=' + projectId).
 				then(function successCallback(response) {
 					$scope.project = response.data;
 					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);
