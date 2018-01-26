@@ -325,10 +325,7 @@ app.factory('renderDynamic', function () {
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
                     navigator.msSaveBlob(blob, fileName);
                 } else { // For other browsers:
-                    var filesaver = FileSaver.saveAs(blob, fileName);
-                    abort_button.addEventListener("click", function() {
-                        filesaver.abort();
-                    }, false);
+                    download(file, fileName);
                 }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
@@ -362,6 +359,10 @@ app.factory('projectManager', function () {
 	}
 
 });
+
+function download(blob, fileName) {
+    saveAs(blob, fileName);
+}
 
 		</script>
 
