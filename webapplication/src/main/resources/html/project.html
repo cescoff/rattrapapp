@@ -40,7 +40,7 @@
 					<ul class="header-nav header-nav-options">
 						<li class="header-nav-brand" >
 							<div class="brand-holder">
-								<a href="home.html">
+								<a href="index.html">
 									<span class="text-lg text-bold text-primary">Rat Trappers</span>
 								</a>
 							</div>
@@ -105,7 +105,7 @@
 										<header>Shape preview</header>
 									</div><!--end .card-head -->
 									<div class="card-body no-padding  height-12">
-										<span ng-bind="errorMessages">
+										<span ng-bind-html="errorMessages">
 										</span>
 										<span ng-bind-html="dynamicPreview">
 										</span>
@@ -154,7 +154,7 @@
 						</a>
 					</div>
 					<div class="expanded">
-						<a href="home.html">
+						<a href="index.html">
 							<span class="text-lg text-bold text-primary ">Home</span>
 						</a>
 					</div>
@@ -166,7 +166,7 @@
 
 						<!-- BEGIN DASHBOARD -->
 						<li>
-							<a href="home.html" class="active">
+							<a href="index.html" class="active">
 								<div class="gui-icon"><i class="md md-home"></i></div>
 								<span class="title">Home</span>
 							</a>
@@ -231,7 +231,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	$scope.project = emptyProject;
 	$scope.dynamicPreview = $sce.trustAsHtml("<img src=\"assets/img/loading.gif\" />");
 	$scope.enableSplitters = true;
-	$scope.errorMessages = "";
+	$scope.errorMessages = $sce.trustAsHtml("");
 
 	projectManager.load($sce, $scope, $http, projectId);
 	
@@ -294,18 +294,18 @@ app.factory('renderDynamic', function () {
 				if (debug) {
 					console.log("'" + response.data + "'");
 				}
+				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
 				var errorMessage = response.headers('RenderingError');
 				console.log("Header:"+errorMessage);
 				if (errorMessage != null && errorMessage != '') {
 					$scope.dynamicPreview = $sce.trustAsHtml("");
-					$scope.errorMessages = "Parameters are invalid : " + errorMessage;
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Validation error</span></a> : Parameters are invalid : " + errorMessage);
 				} else {
 					$scope.dynamicPreview = $sce.trustAsHtml("");
-					$scope.errorMessages = "Your chair parameters are invalid. Your chair will not be stable";
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occured");
 				}
 			});
-			$scope.messages = "";
 		},
 		export: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering project...";
@@ -326,11 +326,17 @@ app.factory('renderDynamic', function () {
 				doc.href = url;
 				doc.download = $scope.project.title.replace(/\s/g, '_') + dateTimeSuffix + ".zip";
 				doc.click();
-				window.URL.revokeObjectURL(url);			
+				window.URL.revokeObjectURL(url);
+				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
-				$scope.messages = "Error while downloading your rendered project";
+				var errorMessage = response.headers('RenderingError');
+				console.log("Header:"+errorMessage);
+				if (errorMessage != null && errorMessage != '') {
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Validation error</span></a> : Parameters are invalid : " + errorMessage);
+				} else {
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occured");
+				}
 			});
-			$scope.messages = "";
 		}
 	}
 
