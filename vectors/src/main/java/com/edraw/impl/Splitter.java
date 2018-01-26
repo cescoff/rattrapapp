@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
-
 import com.edraw.Position;
 import com.edraw.Transformation;
 import com.edraw.config.LaserAction;
@@ -22,10 +20,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Splitter implements Transformation {
 
-	private static final Logger logger = Logger.getLogger(Splitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(Splitter.class);
 	
 	private final Pair<Position, Position> splitterLine;
 	

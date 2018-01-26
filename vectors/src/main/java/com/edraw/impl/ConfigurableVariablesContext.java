@@ -13,7 +13,6 @@ import com.edraw.ErrorMessage;
 import com.edraw.ValidationError;
 import com.rattrap.utils.JAXBUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.edraw.Resource;
 import com.edraw.VarContext;
@@ -24,10 +23,12 @@ import com.edraw.config.Variables.VariableDefinition;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurableVariablesContext implements VarContext {
 
-	private static final Logger logger = Logger.getLogger(ConfigurableVariablesContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurableVariablesContext.class);
 	
 	//private static final String CONFIGURATION_FILE_NAME = "variables.xml";
 	

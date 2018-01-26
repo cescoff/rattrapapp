@@ -13,10 +13,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class BluePrintParser {
 
-	private static final Logger logger = Logger.getLogger(BluePrintParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(BluePrintParser.class);
 	
 	// Synthax is <DRAWING_NAME>/<TopLeft|Center>/<+|->[0-9]+<mm|px>
 	

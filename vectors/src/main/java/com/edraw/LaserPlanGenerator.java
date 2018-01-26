@@ -9,7 +9,7 @@ import com.google.common.collect.Maps;
 import com.rattrap.utils.JAXBUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+
 
 import com.edraw.config.ConfigurationValidator;
 import com.edraw.config.OutputConfig;
@@ -23,6 +23,8 @@ import com.edraw.impl.ConfigurableVariablesContext;
 import com.edraw.impl.StringResource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LaserPlanGenerator {
 
@@ -159,7 +161,7 @@ public class LaserPlanGenerator {
 		if (Iterables.isEmpty(messages)) {
 			return;
 		}
-		final Logger logger = Logger.getLogger(Test.class);
+		final Logger logger = LoggerFactory.getLogger(Test.class);
 		boolean hasErrors = false;
 		for (final ValidationMessage validationMessage : messages) {
 			switch (validationMessage.getLevel()) {

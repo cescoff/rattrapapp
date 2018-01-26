@@ -8,7 +8,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.rattrap.spring.ProjectGeneratorFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
 
-    private static final Logger logger = Logger.getLogger(StaticProjectGeneratorFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(StaticProjectGeneratorFactory.class);
 
     private static final String[] URLS = new String[] {
             "https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml"

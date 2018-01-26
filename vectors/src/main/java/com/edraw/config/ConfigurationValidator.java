@@ -11,14 +11,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.Collections;
 import java.util.Map;
 
 public class ConfigurationValidator {
 
-	private static final Logger logger = Logger.getLogger(ConfigurationValidator.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationValidator.class);
 	
 	private final Map<String, LaserValidator<?>> cachedValidators = Maps.newHashMap();
 	

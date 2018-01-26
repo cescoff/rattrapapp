@@ -12,16 +12,17 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.log4j.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
 
 public abstract class GeometryUtils {
 
-	private static Logger logger = Logger.getLogger(GeometryUtils.class);
+	private static Logger logger = LoggerFactory.getLogger(GeometryUtils.class);
 	
 	private GeometryUtils() {
 	}

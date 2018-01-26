@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.edraw.BluePrintConverter;
 import com.edraw.config.DistanceUnit;
@@ -21,10 +20,12 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SVGConverter implements BluePrintConverter {
 
-	private static final Logger logger = Logger.getLogger(SVGConverter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SVGConverter.class);
 	
 	private static final String circleTemplate = "<circle id=\"${layer}\" cx=\"${cx}\" cy=\"${cy}\" r=\"${r}\" stroke=\"${scolor}\" stroke-width=\"${swidth}\" fill=\"none\" />";
 	

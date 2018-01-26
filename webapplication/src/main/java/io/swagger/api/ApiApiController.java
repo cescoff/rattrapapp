@@ -10,8 +10,9 @@ import io.swagger.model.*;
 import io.swagger.model.Error;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
@@ -42,7 +43,7 @@ import javax.validation.Valid;
 @Controller
 public class ApiApiController implements ApiApi {
 
-    private static Logger logger = Logger.getLogger(ApiApiController.class);
+    private static Logger logger = LoggerFactory.getLogger(ApiApiController.class);
 
     public ResponseEntity<Project> apiNewprojectGet( @NotNull@ApiParam(value = "The url of the project description file", required = true) @RequestParam(value = "url", required = true) String url) {
         // do some magic!
