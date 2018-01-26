@@ -323,7 +323,7 @@ app.factory('renderDynamic', function () {
 				var file = new Blob([response.data], {type: "application/octet-stream"})
 
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
-                    navigator.msSaveBlob(blob, fileName);
+                    navigator.msSaveBlob(file, fileName);
                 } else { // For other browsers:
                     download(file, fileName);
                 }
