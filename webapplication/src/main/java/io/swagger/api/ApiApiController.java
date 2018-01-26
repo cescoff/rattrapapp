@@ -139,9 +139,16 @@ public class ApiApiController implements ApiApi {
         final Iterable<com.edraw.Resource> renderedFiles;
         try {
             renderedFiles = projectGenerator.generateProject(parameters.build(), body.getEnableSplitters() != null && !body.getEnableSplitters());
+        } catch (ValidationError v) {
+            logger.error("Failed to zip dynamic preview on project with id '" + body.getProjectid() + "'", v);
+            final MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+            headers.add("RenderingError", Joiner.on(", ").join(v.getDisplayMessages()));
+            return new ResponseEntity<Resource>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            logger.error("Failed to render dynamic preview on project with id '" + body.getProjectid() + "'", e);
-            return new ResponseEntity<Resource>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Failed to zip dynamic preview on project with id '" + body.getProjectid() + "'", e);
+            final MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+            headers.add("RenderingError", e.getMessage());
+            return new ResponseEntity<Resource>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         final ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
