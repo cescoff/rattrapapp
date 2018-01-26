@@ -29,6 +29,7 @@
 		<!-- END STYLESHEETS -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-resource.min.js"></script>
+        <script src="https://raw.githubusercontent.com/eligrey/FileSaver.js/master/src/FileSaver.js"></script>
 	</head>
 	<body class="menubar-hoverable header-fixed">
 
@@ -324,7 +325,10 @@ app.factory('renderDynamic', function () {
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
                     navigator.msSaveBlob(blob, fileName);
                 } else { // For other browsers:
-                    window.saveAs(file, fileName);
+                    var filesaver = saveAs(blob, fileName);
+                    abort_button.addEventListener("click", function() {
+                        filesaver.abort();
+                    }, false);
                 }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
