@@ -77,6 +77,11 @@ public class ApiApiController implements ApiApi {
         try {
             projectGenerator.generateProject(parameters.build(), false);
             return new ResponseEntity<Resource>(SwaggerUtils.SpringResource(projectGenerator.generateThumbnail(parameters.build(), body.getWidth(), body.getHeight())), HttpStatus.OK);
+        } catch (ValidationError v) {
+            logger.error("Failed to render dynamic preview on project with id '" + body.getProjectid() + "'", v);
+            final MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+            headers.add("RenderingError", Joiner.on(", ").join(v.getDisplayMessages()));
+            return new ResponseEntity<Resource>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             logger.error("Failed to render dynamic preview on project with id '" + body.getProjectid() + "'", e);
             final MultiValueMap<String, String> headers = new LinkedMultiValueMap();
