@@ -324,7 +324,7 @@ app.factory('renderDynamic', function () {
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
                     navigator.msSaveBlob(blob, fileName);
                 } else { // For other browsers:
-                    saveAs(file, fileName);
+                    window.saveAs(file, fileName);
                 }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
