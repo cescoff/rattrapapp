@@ -325,7 +325,10 @@ app.factory('renderDynamic', function () {
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
                     navigator.msSaveBlob(blob, fileName);
                 } else { // For other browsers:
-                    downloadFile(file, fileName);
+                    var filesaver = FileSaver.saveAs(blob, fileName);
+                    abort_button.addEventListener("click", function() {
+                        filesaver.abort();
+                    }, false);
                 }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
@@ -360,15 +363,6 @@ app.factory('projectManager', function () {
 
 });
 
-//import { saveAs } from "file-saver";
-
-public downloadFile(blob, fileName): void {
-     console.log(saveAs);  // I got "undefined" from console
-     var filesaver = saveAs(blob, fileName);
-        abort_button.addEventListener("click", function() {
-        filesaver.abort();
-     }, false);
-}
 		</script>
 
 
