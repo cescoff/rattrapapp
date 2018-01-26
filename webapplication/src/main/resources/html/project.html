@@ -303,7 +303,7 @@ app.factory('renderDynamic', function () {
 					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Validation error</span></a> : Parameters are invalid : " + errorMessage);
 				} else {
 					$scope.dynamicPreview = $sce.trustAsHtml("");
-					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occured");
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occurred");
 				}
 			});
 		},
@@ -334,7 +334,7 @@ app.factory('renderDynamic', function () {
 				if (errorMessage != null && errorMessage != '') {
 					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Validation error</span></a> : Parameters are invalid : " + errorMessage);
 				} else {
-					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occured");
+					$scope.errorMessages = $sce.trustAsHtml("<a href=\"#\"><span class=\"badge badge-danger\">Internal error</span></a> : Application error occurred");
 				}
 			});
 		}
