@@ -315,17 +315,17 @@ app.factory('renderDynamic', function () {
 				Encoding: 'gzip',
 				responseType:'arraybuffer'}).
 			then(function successCallback(response) {
-				var file = new Blob([response.data], {type: "application/octet-stream"})
-				var url = window.URL.createObjectURL(file);
-
 				var currentDateTime = new Date();
 				var dateTimeSuffix = '_' + currentDateTime.getFullYear() + '-' + (currentDateTime.getMonth() + 1) + '-' + currentDateTime.getDate() + '_' + currentDateTime.getHours() + 'h-' + currentDateTime.getMinutes() + 'm';
+                var fileName = $scope.project.title.replace(/\s/g, '_') + dateTimeSuffix + ".zip";
 
-				var doc = document.createElement("a");
-				doc.href = url;
-				doc.download = $scope.project.title.replace(/\s/g, '_') + dateTimeSuffix + ".zip";
-				doc.click();
-				window.URL.revokeObjectURL(url);
+				var file = new Blob([response.data], {type: "application/octet-stream"})
+
+				if (window.navigator.msSaveOrOpenBlob) { // For IE:
+                    navigator.msSaveBlob(blob, fileName);
+                } else { // For other browsers:
+                    saveAs(file, fileName);
+                }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
 				var errorMessage = response.headers('RenderingError');
