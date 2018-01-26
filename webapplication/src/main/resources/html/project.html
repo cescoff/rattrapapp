@@ -29,7 +29,7 @@
 		<!-- END STYLESHEETS -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-resource.min.js"></script>
-        <script src="https://raw.githubusercontent.com/eligrey/FileSaver.js/master/src/FileSaver.js"></script>
+        <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
 	</head>
 	<body class="menubar-hoverable header-fixed">
 
@@ -325,10 +325,7 @@ app.factory('renderDynamic', function () {
 				if (window.navigator.msSaveOrOpenBlob) { // For IE:
                     navigator.msSaveBlob(blob, fileName);
                 } else { // For other browsers:
-                    var filesaver = saveAs(blob, fileName);
-                    abort_button.addEventListener("click", function() {
-                        filesaver.abort();
-                    }, false);
+                    downloadFile(file, fileName);
                 }
 				$scope.errorMessages = $sce.trustAsHtml("");
 			}, function errorCallback(response){
@@ -362,6 +359,16 @@ app.factory('projectManager', function () {
 	}
 
 });
+
+import { saveAs } from "file-saver";
+
+public downloadFile(blob, fileName): void {
+     console.log(saveAs);  // I got "undefined" from console
+     var filesaver = saveAs(blob, fileName);
+        abort_button.addEventListener("click", function() {
+        filesaver.abort();
+     }, false);
+}
 		</script>
 
 
