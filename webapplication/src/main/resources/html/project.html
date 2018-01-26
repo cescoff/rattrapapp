@@ -75,32 +75,21 @@
 						<div class="row">
 
 							<!-- BEGIN SITE ACTIVITY -->
-							<div class="col-md-3 col-sm-6">
+							<div class="col-md-4 col-sm-6">
 								<div class="card card-underline">
 									<div class="card-head">
 										<header ng-bind="project.title"></header>
 									</div><!--end .card-head -->
 									<div class="card-body">
-										<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" width="100%"/>
+										<span>
+											<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" width="100%"/>
+										</span>
+										<span ng-bind-html="project.presentation">
+										</span>
 									</div>
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-6">
-								<div class="card card-underline">
-									<div class="card-head">
-										<header>Project presentation</header>
-									</div>
-									<div class="card-body" ng-bind-html="project.presentation">
-									<!--div class="card-body"-->
-									</div><!--end .card-body -->
-								</div>
-							</div><!--end .col -->
-							<!-- END SITE ACTIVITY -->
-						</div>
-						
-						<div class="row">
 
-							<!-- BEGIN TODOS -->
 							<div class="col-md-3">
 								<div class="card card-underline">
 									<div class="card-head">
@@ -110,35 +99,36 @@
 									</div><!--end .card-body -->
 								</div><!--end .card -->
 							</div><!--end .col -->
+
 							<div class="col-md-4">
 								<div class="card card-underline">
 									<div class="card-head">
 										<header>Parameters</header>
 									</div><!--end .card-head -->
 									<div class="card-body">
-											<form class="form">
-												<div class="checkbox checkbox-styled">
-													<label>
-														<input type="checkbox" ng-model="enableSplitters" class="form-control">
-														<span>Enable output splitters</span>
-													</label>
-													<p class="help-block">If checked the graphics will be split to match you laser cut length</p>
-												</div>
-												<div class="form-group" ng-repeat="parameter in project.parameters">
-															<input ng-model="parameter.value" type="text" class="form-control">
-															<label>{{parameter.displayname}}</label>
-															<p class="help-block">{{parameter.description}}</p>
-												</div>
-												<button ng-click="preview()" class="btn btn-info">Preview</button>
-												<button ng-click="downloadZip()" class="btn btn-info">Download</button>
-												<button ng-click="reset()" class="btn btn-info">Reset</button>
-											</form>
+										<form class="form">
+											<div class="checkbox checkbox-styled">
+												<label>
+													<input type="checkbox" ng-model="enableSplitters" class="form-control">
+													<span>Enable output splitters</span>
+												</label>
+												<p class="help-block">If checked the graphics will be split to match you laser cut length</p>
+											</div>
+											<div class="form-group" ng-repeat="parameter in project.parameters">
+												<input ng-model="parameter.value" type="text" class="form-control">
+												<label>{{parameter.displayname}}</label>
+												<p class="help-block">{{parameter.description}}</p>
+											</div>
+											<button ng-click="preview()" class="btn btn-info">Preview</button>
+											<button ng-click="downloadZip()" class="btn btn-info">Download</button>
+											<button ng-click="reset()" class="btn btn-info">Reset</button>
+										</form>
 									</div>
 								</div>
 							</div>
 						</div>
+						
 					</div>
-							<!-- END TODOS -->
 				</section>
 
 			</div>
