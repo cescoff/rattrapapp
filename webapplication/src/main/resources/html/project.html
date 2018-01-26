@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en-US">
 	<head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113165250-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-113165250-1');
+        </script>
 		<title>Rattrap, dynamic rendered objects</title>
 		<!-- BEGIN META -->
 		<meta charset="utf-8">
@@ -95,7 +104,7 @@
 									<div class="card-head">
 										<header>Shape preview</header>
 									</div><!--end .card-head -->
-									<div class="card-body no-padding">
+									<div class="card-body no-padding  height-12">
 										<span ng-bind="errorMessages">
 										</span>
 										<span ng-bind-html="dynamicPreview">
@@ -114,9 +123,8 @@
 											<div class="checkbox checkbox-styled">
 												<label>
 													<input type="checkbox" ng-model="enableSplitters" class="form-control">
-													<span>Enable output splitters</span>
+													<span>Enable output splitters (means to match your laser cut dimensions)</span>
 												</label>
-												<p class="help-block">If checked the graphics will be split to match you laser cut length</p>
 											</div>
 											<div class="form-group" ng-repeat="parameter in project.parameters">
 												<input ng-model="parameter.value" type="text" class="form-control">
