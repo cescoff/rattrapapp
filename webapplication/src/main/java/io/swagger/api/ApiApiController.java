@@ -1,6 +1,8 @@
 package io.swagger.api;
 
 import com.edraw.ProjectGenerator;
+import com.edraw.ValidationError;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.rattrap.spring.ProjectGeneratorFactory;
 import com.rattrap.spring.SwaggerUtils;
@@ -145,6 +147,11 @@ public class ApiApiController implements ApiApi {
                 IOUtils.copy(resource.open(), zipOutputStream);
                 zipOutputStream.closeEntry();
             }
+        } catch (ValidationError v) {
+            logger.error("Failed to zip dynamic preview on project with id '" + body.getProjectid() + "'", v);
+            final MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+            headers.add("RenderingError", Joiner.on(", ").join(v.getDisplayMessages()));
+            return new ResponseEntity<Resource>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             logger.error("Failed to zip dynamic preview on project with id '" + body.getProjectid() + "'", e);
             final MultiValueMap<String, String> headers = new LinkedMultiValueMap();

@@ -84,7 +84,7 @@
 										<span>
 											<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" width="100%"/>
 										</span>
-										<span ng-bind-html="project.presentation">
+											<span ng-bind-html="project.presentation">
 										</span>
 									</div>
 								</div>
@@ -95,7 +95,11 @@
 									<div class="card-head">
 										<header>Shape preview</header>
 									</div><!--end .card-head -->
-									<div class="card-body no-padding" ng-bind-html="dynamicPreview">
+									<div class="card-body no-padding">
+										<span ng-bind="errorMessages">
+										</span>
+										<span ng-bind-html="dynamicPreview">
+										</span>
 									</div><!--end .card-body -->
 								</div><!--end .card -->
 							</div><!--end .col -->
@@ -219,6 +223,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	$scope.project = emptyProject;
 	$scope.dynamicPreview = $sce.trustAsHtml("<img src=\"assets/img/loading.gif\" />");
 	$scope.enableSplitters = true;
+	$scope.errorMessages = "";
 
 	projectManager.load($sce, $scope, $http, projectId);
 	
@@ -275,7 +280,7 @@ app.factory('renderDynamic', function () {
 	return {
 		preview: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering preview...";
-			$http.post('/api/preview', renderPostBody).
+			$http.post('http://localhost:8090/api/preview', renderPostBody).
 			then(function successCallback(response) {
 				$scope.dynamicPreview = $sce.trustAsHtml(response.data);
 				if (debug) {
@@ -285,16 +290,18 @@ app.factory('renderDynamic', function () {
 				var errorMessage = response.headers('RenderingError');
 				console.log("Header:"+errorMessage);
 				if (errorMessage != null && errorMessage != '') {
-					$scope.dynamicPreview = $sce.trustAsHtml("Parameters are invalid : " + errorMessage);
+					$scope.dynamicPreview = $sce.trustAsHtml("");
+					$scope.errorMessages = "Parameters are invalid : " + errorMessage;
 				} else {
-					$scope.dynamicPreview = $sce.trustAsHtml("Your chair parameters are invalid. Your chair will not be stable");
+					$scope.dynamicPreview = $sce.trustAsHtml("");
+					$scope.errorMessages = "Your chair parameters are invalid. Your chair will not be stable";
 				}
 			});
 			$scope.messages = "";
 		},
 		export: function(renderPostBody, debug, $scope, $http, $sce) {
 			$scope.messages = "Rendering project...";
-			$http.post('/api/render', renderPostBody, {
+			$http.post('http://localhost:8090/api/render', renderPostBody, {
 				dataType : "binary",
 				processData : false,
 				accept:'application/zip',
@@ -324,7 +331,7 @@ app.factory('renderDynamic', function () {
 app.factory('projectManager', function () {
 	return {
 		load: function($sce, $scope, $http, projectId) {
-			$http.get('/api/project?id=' + projectId).
+			$http.get('http://localhost:8090/api/project?id=' + projectId).
 				then(function successCallback(response) {
 					$scope.project = response.data;
 					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);

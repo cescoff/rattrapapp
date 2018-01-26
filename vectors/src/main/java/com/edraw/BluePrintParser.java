@@ -749,7 +749,9 @@ public class BluePrintParser {
 					logger.info("Hinge '" + name + "/" + layer + "' has real width '" + realWidth + "' and " + numberOfCrenels + " crenels");
 				} else {
 					logger.error("Hinge '" + name + "/" + layer + "' has real width '" + realWidth + "' and " + numberOfCrenels + " crenels (which will not look good, please update the width of the heads)");
-					throw new IllegalArgumentException("Hinge '" + name + "/" + layer + "' has real wdith '" + realWidth + "' and " + numberOfCrenels + " crenels (which will not look good, please update the width of the heads)");
+					throw new ValidationError(ErrorMessage.create(
+							"Your hinge tooth width has led to an even number of crenels (" + numberOfCrenels + ") the number of crenel must be odd, change this parameter please",
+							"Hinge '" + name + "/" + layer + "' has real wdith '" + realWidth + "' and " + numberOfCrenels + " crenels (which will not look good, please update the width of the heads)"));
 				}
 			} else {
 				logger.info("Crenel '" + name + "/" + layer + "' has real wdith '" + realWidth + "' and " + numberOfCrenels + " crenels");

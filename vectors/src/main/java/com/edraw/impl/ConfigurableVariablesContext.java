@@ -9,6 +9,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.edraw.ErrorMessage;
+import com.edraw.ValidationError;
 import com.rattrap.utils.JAXBUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -60,7 +62,7 @@ public class ConfigurableVariablesContext implements VarContext {
 			}
 			expressionContext.put(expressionDefinition.getName(), varValue);
 		}
-		final List<String> errorMessages = Lists.newArrayList();
+		final List<ErrorMessage> errorMessages = Lists.newArrayList();
 		for (final ValidationAssertion validationAssertion : variables.getValidations()) {
 			final double value = evalExpr(null, validationAssertion.getExpression());
 			boolean validationFailed = false;
@@ -90,13 +92,13 @@ public class ConfigurableVariablesContext implements VarContext {
 				}
 			}
 			if (validationFailed) {
-				errorMessages.add("Failed to validation '" + validationAssertion.getName() + "' '" + validationAssertion.getExpression() + "'" + validationAssertion.getValidationExepression() + "' is false (" + value + ")");
+				errorMessages.add(ErrorMessage.create(validationAssertion.getName(), "'" + validationAssertion.getExpression() + "'" + validationAssertion.getValidationExepression() + "' is false (" + value + ")"));
 			} else {
 				logger.info("Validation '" + validationAssertion.getName() + "' has value " + value + validationAssertion.getValidationExepression());
 			}
 		}
 		if (errorMessages.size() > 0) {
-			throw new IllegalStateException("Validation errors : '" + Joiner.on("', '").join(errorMessages) + "'");
+			throw new ValidationError(errorMessages);
 		}
 	}
 
