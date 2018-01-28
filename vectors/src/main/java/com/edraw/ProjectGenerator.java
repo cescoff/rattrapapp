@@ -202,7 +202,17 @@ public class ProjectGenerator {
 					if (svgMatcher.find()) {
 						final int width = new Double(svgMatcher.group(1)).intValue();
 						final int height = new Double(svgMatcher.group(2)).intValue();
-						result.append("<svg width=\"").append(widthPixels).append("px\" height=\"").append(heightPixels).append("px\"").append(" viewBox=\"0 0 ").append(width).append(" ").append(height).append("\" preserveAspectRatio=\"xMinYMin meet\">");
+						final StringBuilder widthAttribute = new StringBuilder();
+						final StringBuilder heightAttribute = new StringBuilder();
+						if (widthPixels > 0) {
+							widthAttribute.append(" width=\"").append(widthPixels).append("px\"");
+						} else {
+							widthAttribute.append(" width=\"100%\"");
+						}
+						if (heightPixels > 0) {
+							heightAttribute.append(" height=\"").append(heightPixels).append("px\"");
+						}
+						result.append("<svg width=\"").append(widthAttribute).append(heightAttribute).append(" viewBox=\"0 0 ").append(width).append(" ").append(height).append("\" preserveAspectRatio=\"xMinYMin meet\">");
 //						result.append("<svg viewBox=\"0 0 ").append(widthPixels).append(" ").append(heightPixels).append("\" preserveAspectRatio=\"xMinYMin meet\" >");
 					} else {
 						result.append(StringUtils.replace(line, "mm", "px"));
