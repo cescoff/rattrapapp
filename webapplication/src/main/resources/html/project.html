@@ -239,8 +239,8 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	var renderPostBody = {
 		title: $scope.project.name,
 		projectid: projectId,
-		width: 470,
-		height: 470
+		width: 0,
+		height: 0
 	}
 	
 	renderDynamic.preview(renderPostBody, debug, $scope, $http, $sce);
@@ -249,8 +249,8 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 		var customRenderPostBody = {
 			name: $scope.project.title,
 			projectid: projectId,
-			width: 470,
-			height: 470,
+			width: 0,
+			height: 0,
 			parameters: $scope.project.parameters
 		}
 		renderDynamic.preview(customRenderPostBody, debug, $scope, $http, $sce);
@@ -261,8 +261,8 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 		var renderPostBody = {
 			name: $scope.project.title,
 			projectid: projectId,
-			width: 470,
-			height: 470
+			width: 0,
+			height: 0
 		}
 		$scope.enableSplitters = true;
 		renderDynamic.preview(renderPostBody, debug, $scope, $http, $sce);
@@ -272,8 +272,8 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 		var customRenderPostBody = {
 			name: $scope.project.title,
 			projectid: projectId,
-			width: 470,
-			height: 470,
+			width: 0,
+			height: 0,
 			parameters: $scope.project.parameters,
 			enableSplitters: $scope.enableSplitters
 		}
