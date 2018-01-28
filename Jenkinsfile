@@ -29,8 +29,10 @@ pipeline {
                     echo "Deploying app server"
                     sh '''
                         cp -r standalonepackager/target/standalone-packager-1.0-SNAPSHOT-server/lib /var/lib/jenkins/rattrapserver/
-                        BUILD_ID=dontKillMe /var/lib/jenkins/rattrapserver/refresh.sh
                     '''
+                    withEnv(['BUILD_ID=dontkill']) {
+                        sh "nohup /var/lib/jenkins/rattrapserver/refresh.sh &"
+                    }
                     echo 'Done refreshing app server (BUILD_ID added)'
                 }
             }        
