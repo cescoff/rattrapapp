@@ -152,8 +152,8 @@ public class LaserPlanGenerator {
 		}
 		String resultDoc = documentationString;
 		for (final String varName : docVars) {
-			final String varValue = varContext.evaluate(varName) + "";
-			resultDoc = StringUtils.replace(resultDoc, "${" + varName + "}", varValue);
+			final String varValue = varContext.evaluate(StringUtils.remove(StringUtils.remove(varName, "${"), "}")) + "";
+			resultDoc = StringUtils.replace(resultDoc, varName, varValue);
 		}
 		return new StringResource("documentation." + FilenameUtils.getExtension(this.documentation.getName()), resultDoc);
 	}
@@ -230,6 +230,23 @@ public class LaserPlanGenerator {
 			throw new IllegalArgumentException("You have validation error messages, check logs for more details");
 		}
 	}
-	
+
+
+	public static void main(String[] args) throws Exception {
+		final String test = "This is test for var ${fullTopSliderAxleWidth} and var ${fullSeatHingeAxleWidth}...";
+		final VarContext varContext = new VarContext() {
+			@Override
+			public double evaluate(String expression) throws Exception {
+				return expression.length();
+			}
+		};
+		final Resource doc = new LaserPlanGenerator(null,
+				null,
+				null, null,
+				null,
+				new StringResource("Documentation.html", test),
+		false).getDocumentation(varContext);
+		System.out.println(IOUtils.toString(new InputStreamReader(doc.open())));
+	}
 	
 }
