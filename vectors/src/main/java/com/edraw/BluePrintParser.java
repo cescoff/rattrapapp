@@ -705,11 +705,12 @@ public class BluePrintParser {
 					minWidth = minWidthCandidate;
 					numberOfCrenels = numberOfCrenelsCandidate;
 				} else {
-					logger.info("Number of hinge crenel is even, trying to determine an odd number depending on the min width var");
+					logger.info("Number of hinge crenel is even " + numberOfCrenelsCandidate + ", trying to determine an odd number depending on the min width var");
 					for (int index = 1; index < 100; index++) {
 						minWidthCandidate = new Distance(minWidthCandidate.getDistance() + (index / 10), minWidthCandidate.getUnit());
 						numberOfCrenelsCandidate = new Double((crenelLength.getDistance() - 2*offSet.getDistance()) / minWidthCandidate.getDistance()).intValue();
 						if (numberOfCrenelsCandidate % 2 > 0) {
+							logger.info("Number of hinge crenel is auto set to " + numberOfCrenelsCandidate + " and width will be " + minWidthCandidate.getDistance() + " instead of " + DistanceUnit.parse(varContext, laserHinge.getMinWidth(), defaultDistanceUnit).getDistance());
 							break;
 						}
 					}
