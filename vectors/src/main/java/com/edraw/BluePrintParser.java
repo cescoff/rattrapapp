@@ -598,6 +598,7 @@ public class BluePrintParser {
 			
 			final Distance offSet;
 			final Distance minWidth;
+			final int numberOfCrenels;
 			final Distance height;
 			final Optional<Quartet<String, PositionType, Double, DistanceUnit>> startXRelative;
 			final Optional<Quartet<String, PositionType, Double, DistanceUnit>> startYRelative;
@@ -664,13 +665,14 @@ public class BluePrintParser {
 				extraHingeSpan = 0.0;
 				
 				sharpAngleLayer = null;
+
+				numberOfCrenels = new Double((crenelLength.getDistance() - 2*offSet.getDistance()) / minWidth.getDistance()).intValue();
 			} else if (laserHinge != null) {
 				name = laserHinge.getName();
 				layer = laserHinge.getLayer();
 				action = LaserAction.valueOf(laserHinge.getAction());
 				
 				offSet = DistanceUnit.parse(varContext, laserHinge.getBorderOffSet(), defaultDistanceUnit);
-				minWidth = DistanceUnit.parse(varContext, laserHinge.getMinWidth(), defaultDistanceUnit);
 				height = DistanceUnit.parse(varContext, laserHinge.getHeight(), defaultDistanceUnit);
 				
 				Distance crenelSegmentDistance;
@@ -694,7 +696,26 @@ public class BluePrintParser {
 				realEnd = crenelPositions.getValue1();
 				
 				crenelLength = getDistance(realStart, realEnd);
-				
+
+				Distance minWidthCandidate = DistanceUnit.parse(varContext, laserHinge.getMinWidth(), defaultDistanceUnit);
+
+				int numberOfCrenelsCandidate = new Double((crenelLength.getDistance() - 2*offSet.getDistance()) / minWidthCandidate.getDistance()).intValue();
+
+				if (numberOfCrenelsCandidate % 2 > 0) {
+					minWidth = minWidthCandidate;
+					numberOfCrenels = numberOfCrenelsCandidate;
+				} else {
+					for (int index = 1; index < 10; index++) {
+						minWidthCandidate = new Distance(minWidthCandidate.getDistance(), minWidthCandidate.getUnit());
+						numberOfCrenelsCandidate = new Double((crenelLength.getDistance() - 2*offSet.getDistance()) / minWidthCandidate.getDistance()).intValue();
+						if (numberOfCrenelsCandidate % 2 > 0) {
+							break;
+						}
+					}
+					minWidth = minWidthCandidate;
+					numberOfCrenels = numberOfCrenelsCandidate;
+				}
+
 				try {
 					thickness = varContext.evaluate(laserHinge.getThickness());
 					hingeHoleRadius = varContext.evaluate(laserHinge.getRadius());
@@ -740,8 +761,6 @@ public class BluePrintParser {
 			if (crenelLength.getDistance() < (2*offSet.getDistance() + 3*minWidth.getDistance())) {
 				throw new IllegalStateException("Crenel '" + laserCrenel.getName() + "' is too short for width '" + minWidth + "' with offset '" + offSet + "'");
 			}
-			
-			final int numberOfCrenels = new Double((crenelLength.getDistance() - 2*offSet.getDistance()) / minWidth.getDistance()).intValue();
 			
 			final Distance realWidth = new Distance((crenelLength.getDistance() - 2*offSet.getDistance()) / numberOfCrenels, crenelLength.getUnit());
 			
