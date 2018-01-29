@@ -155,7 +155,7 @@ public class LaserPlanGenerator {
 			final String varValue = varContext.evaluate(StringUtils.remove(StringUtils.remove(varName, "${"), "}")) + "";
 			resultDoc = StringUtils.replace(resultDoc, varName, varValue);
 		}
-		return new StringResource("documentation." + FilenameUtils.getExtension(this.documentation.getName()), resultDoc);
+		return new StringResource("Documentation." + FilenameUtils.getExtension(this.documentation.getName()), resultDoc);
 	}
 
 	private Resource getReadmeHtml(final VarContext varContext) throws Exception {
