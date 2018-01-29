@@ -45,7 +45,10 @@ public class ProjectConfig {
 	@XmlElement(name = "dynamic-preview-output-url")
 	private String dynamicPreviewOutputURL;
 
-	@XmlElementWrapper(name = "default") @XmlElement(name = "variable") 
+	@XmlElement(name = "documentation-url")
+	private String documentationURL;
+
+	@XmlElementWrapper(name = "default") @XmlElement(name = "variable")
 	private Collection<DefaultVariableConfig> defaultVariablesValues = Lists.newArrayList();
 
 	@XmlElementWrapper(name = "printable") @XmlElement(name = "variable")
@@ -109,7 +112,9 @@ public class ProjectConfig {
 		return printableVariablesValues;
 	}
 
-	@XmlAccessorType(XmlAccessType.FIELD)
+    public String getDocumentationURL() { return documentationURL; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
 	public static class DefaultVariableConfig {
 		
 		@XmlAttribute

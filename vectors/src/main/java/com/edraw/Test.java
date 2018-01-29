@@ -41,7 +41,7 @@ public class Test {
 				outputDir.mkdirs();
 			}
 			
-			final LaserPlanGenerator laserPlanGenerator = new LaserPlanGenerator(Maps.<String, VariableTranslation>newHashMap(), Maps.<String, VariableTranslation>newHashMap(), new FileResource(variablesFile), new FileResource(sourceFile), new FileResource(outputConfigFile), false);
+			final LaserPlanGenerator laserPlanGenerator = new LaserPlanGenerator(Maps.<String, VariableTranslation>newHashMap(), Maps.<String, VariableTranslation>newHashMap(), new FileResource(variablesFile), new FileResource(sourceFile), new FileResource(outputConfigFile), null, false);
 			
 			for (final Resource laserPlan : laserPlanGenerator.getLaserPlan()) {
 				final InputStream laserInputStream = laserPlan.open();

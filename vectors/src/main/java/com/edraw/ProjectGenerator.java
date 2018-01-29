@@ -56,6 +56,8 @@ public class ProjectGenerator {
 
 	private Resource dynamicPreviewOutputResource = null;
 
+	private Resource documentationResource = null;
+
 	private final Map<String, String> customVariables = Maps.newHashMap();
 
 	private ProjectConfig config;
@@ -160,6 +162,15 @@ public class ProjectGenerator {
 				this.dynamicPreviewResource.open().close();
 			} catch (Exception e) {
 				throw new IllegalArgumentException("Cannot open dynamic preview config URL '" + config.getOutputConfigURL() + "'", e);
+			}
+		}
+
+		if (StringUtils.isNotEmpty(config.getDocumentationURL())) {
+			this.documentationResource = new URLResource(config.getDocumentationURL());
+			try {
+				this.documentationResource.open().close();
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Cannot open documentation URL '" + config.getDocumentationURL() + "'", e);
 			}
 		}
 
@@ -278,7 +289,7 @@ public class ProjectGenerator {
 			printableVariableTranslations.put(defaultVariableConfig.getName(), getTranslation(defaultVariableConfig));
 		}
 
-		return new LaserPlanGenerator(userVariableTranslations.build(), printableVariableTranslations.build(), customVariablesResource, localTemplateResource, localOutputResource, skipOutputTransformations).getLaserPlan();
+		return new LaserPlanGenerator(userVariableTranslations.build(), printableVariableTranslations.build(), customVariablesResource, localTemplateResource, localOutputResource, documentationResource, skipOutputTransformations).getLaserPlan();
 	}
 
 	private VariableTranslation getTranslation(final DefaultVariableConfig config) {

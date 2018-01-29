@@ -1,12 +1,18 @@
 package com.edraw;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.rattrap.utils.JAXBUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 public class LaserPlanGenerator {
 
+	private final Pattern VAR_PATTERN = Pattern.compile("\\$\\{[A-Za-z\\.0-9]+\\}");
+
     private final Map<String, VariableTranslation> userVariablesTranslations;
 
 	private final Map<String, VariableTranslation> printableVariablesTranslations;
@@ -38,12 +46,15 @@ public class LaserPlanGenerator {
 	
 	private final Resource outputConfig;
 
+	private final Resource documentation;
+
 	private final boolean skipOutputTransformations;
 
 	public LaserPlanGenerator(Map<String, VariableTranslation> userVariablesTranslations,
 							  Map<String, VariableTranslation> printableVariablesTranslations,
                               Resource variables, Resource template,
                               Resource outputConfig,
+                              Resource documentation,
                               boolean skipOutputTransformations) {
 		super();
 		this.userVariablesTranslations = userVariablesTranslations;
@@ -51,6 +62,7 @@ public class LaserPlanGenerator {
 		this.variables = variables;
 		this.template = template;
 		this.outputConfig = outputConfig;
+		this.documentation = documentation;
 		this.skipOutputTransformations = skipOutputTransformations;
 	}
 	
@@ -111,7 +123,39 @@ public class LaserPlanGenerator {
 
         result.add(getHTMLResource(graphicOutputs));
 		result.add(getReadmeHtml(varContext));
+		final Resource documentationResource = getDocumentation(varContext);
+		if (documentationResource != null) {
+			result.add(documentationResource);
+		}
 		return result.build();
+	}
+
+	private Resource getDocumentation(final VarContext varContext) throws Exception {
+		if (this.documentation == null) {
+			return null;
+		}
+		final InputStream docIn = this.documentation.open();
+		final String documentationString;
+		try {
+			documentationString = IOUtils.toString(new InputStreamReader(docIn));
+		} finally {
+			docIn.close();
+		}
+		if (StringUtils.isEmpty(documentationString)) {
+			LoggerFactory.getLogger(getClass()).info("Documentation resource provided an empty string");
+			return null;
+		}
+		final List<String> docVars = Lists.newArrayList();
+		final Matcher varMatcher = VAR_PATTERN.matcher(documentationString);
+		while (varMatcher.find()) {
+			docVars.add(varMatcher.group());
+		}
+		String resultDoc = documentationString;
+		for (final String varName : docVars) {
+			final String varValue = varContext.evaluate(varName) + "";
+			resultDoc = StringUtils.replace(resultDoc, "${" + varName + "}", varValue);
+		}
+		return new StringResource("documentation." + FilenameUtils.getExtension(this.documentation.getName()), resultDoc);
 	}
 
 	private Resource getReadmeHtml(final VarContext varContext) throws Exception {
