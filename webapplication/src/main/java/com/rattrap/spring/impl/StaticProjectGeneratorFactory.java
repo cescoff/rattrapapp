@@ -23,7 +23,8 @@ public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
     private static final Logger logger = LoggerFactory.getLogger(StaticProjectGeneratorFactory.class);
 
     private static final String[] URLS = new String[] {
-            "https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml"
+            "https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml",
+            "https://raw.githubusercontent.com/cescoff/towely/master/project.xml"
     };
 
     private static long CACHE_TTL = TimeUnit.MINUTES.toMillis(3);
@@ -48,6 +49,7 @@ public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
                     idBuilder.append(name);
                 }
                 final String id = DigestUtils.md5DigestAsHex(idBuilder.toString().getBytes());
+                logger.info("Project '" + url + "' has id '" + id + "'");
                 this.CACHE.put(id, projectGenerator);
                 this.CACHE_TTLS.put(url, LocalDateTime.now());
             }
