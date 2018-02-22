@@ -386,6 +386,12 @@ public class BluePrintParser {
 			this.xExact = xExact;
 			this.yExact = yExact;
 			this.unit = unit;
+			if (xExact < 0 && relativeFromDrawingX == null) {
+				throw new IllegalStateException("Cannot create a relative position from any positions on X");
+			}
+			if (yExact < 0 && relativeFromDrawingY == null) {
+				throw new IllegalStateException("Cannot create a relative position from any positions on Y");
+			}
 		}
 
 		public double getX() {
