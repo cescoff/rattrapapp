@@ -58,14 +58,19 @@ public class ProjectConfig {
 		super();
 	}
 
-	public ProjectConfig(String thumbnailURL, String presentationText,
-			String variablesURL, String templateURL, String outputConfigURL) {
-		super();
+	public ProjectConfig(String name, String thumbnailURL, String description, String presentationText, String variablesURL, String templateURL, String outputConfigURL, String dynamicPreviewURL, String dynamicPreviewOutputURL, String documentationURL, Collection<DefaultVariableConfig> defaultVariablesValues, Collection<DefaultVariableConfig> printableVariablesValues) {
+		this.name = name;
 		this.thumbnailURL = thumbnailURL;
+		this.description = description;
 		this.presentationText = presentationText;
 		this.variablesURL = variablesURL;
 		this.templateURL = templateURL;
 		this.outputConfigURL = outputConfigURL;
+		this.dynamicPreviewURL = dynamicPreviewURL;
+		this.dynamicPreviewOutputURL = dynamicPreviewOutputURL;
+		this.documentationURL = documentationURL;
+		this.defaultVariablesValues = defaultVariablesValues;
+		this.printableVariablesValues = printableVariablesValues;
 	}
 
 	public String getName() {

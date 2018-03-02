@@ -25,6 +25,12 @@ public class LaserPoint extends LaserDrawing {
 		this.y = y;
 	}
 
+	public LaserPoint(String name, String layer, String x, String y) {
+		super(name, layer);
+		this.x = x;
+		this.y = y;
+	}
+
 	public String getX() {
 		return x;
 	}
