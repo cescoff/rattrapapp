@@ -7,12 +7,18 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Predicates {
 
-    public static <T> Predicate<T> FullTextFilter(final String textContains, final Function<T, String> toText) {
+    public static <T> com.google.common.base.Predicate<T> FullTextFilter(final String textContains, final Function<T, String> toText) {
         return new com.google.common.base.Predicate<T>() {
-            @Override
+
             public boolean apply(T t) {
                 return StringUtils.containsIgnoreCase(toText.apply(t), textContains);
             }
+
+            // Compilation issue
+            public boolean test(T t) {
+                return apply(t);
+            }
+
         };
     }
 
