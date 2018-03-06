@@ -76,7 +76,7 @@
 <!-- END HEADER-->
 
 <!-- BEGIN BASE-->
-<div id="base">
+<div id="base" ng-app="Rattrap" ng-controller="ProjectsPresentation">
 
     <!-- BEGIN OFFCANVAS LEFT -->
     <div class="offcanvas">
@@ -192,7 +192,7 @@ var app = angular.module("Rattrap", []);
 
 app.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
 
-app.controller("ProjectPresentation", function($scope, $http, $sce, $location, projectManager, renderDynamic) {
+app.controller("ProjectsPresentation", function($scope, $http, $sce, $location, projectManager, renderDynamic) {
             var debug = $location.search().debug == "true";
 			$http.get('/api/search?fulltextquery=%23all').
 			then(function successCallback(response) {
