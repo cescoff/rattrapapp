@@ -25,7 +25,7 @@ public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticProjectGeneratorFactory.class);
 
-    private static final String PROJECT_LIST_URL = "";
+    private static final String PROJECT_LIST_URL = "https://raw.githubusercontent.com/cescoff/rattrapapp/master/webapplication/src/main/resources/projects.xml";
 
     private static long CACHE_TTL = TimeUnit.MINUTES.toMillis(3);
 
@@ -68,10 +68,14 @@ public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
     }
 
     private void manageURLs() throws Exception {
-        final ProjectListConfig projectListConfig = JAXBUtils.unmarshal(ProjectListConfig.class, new URLResource(PROJECT_LIST_URL).open());
-        synchronized (projectUrls) {
-            projectUrls.clear();
-            projectUrls.addAll(projectListConfig.getProjects());
+        if (URL_TTL == null || LocalDateTime.now().minus(CACHE_TTL, ChronoUnit.MILLIS).isAfter(URL_TTL)) {
+            logger.info("Refreshing project list cache");
+            final ProjectListConfig projectListConfig = JAXBUtils.unmarshal(ProjectListConfig.class, new URLResource(PROJECT_LIST_URL).open());
+            synchronized (projectUrls) {
+                projectUrls.clear();
+                projectUrls.addAll(projectListConfig.getProjects());
+                URL_TTL = LocalDateTime.now();
+            }
         }
     }
 

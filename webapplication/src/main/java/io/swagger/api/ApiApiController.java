@@ -2,9 +2,13 @@ package io.swagger.api;
 
 import com.edraw.ProjectConfigBuilder;
 import com.edraw.ValidationError;
+import com.edraw.utils.Predicates;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Iterables;
 import com.rattrap.spring.ProjectGeneratorFactory;
 import com.rattrap.spring.SwaggerUtils;
 import io.swagger.model.*;
@@ -194,8 +198,43 @@ public class ApiApiController implements ApiApi {
     }
 
     public ResponseEntity<SearchResult> apiSearchGet( @NotNull@ApiParam(value = "The search query", required = true) @RequestParam(value = "fulltextquery", required = true) String fulltextquery) {
-        // do some magic!
-        return new ResponseEntity<SearchResult>(HttpStatus.OK);
+        final Iterable<ProjectGeneratorFactory.ProjectHolder> projectHolders;
+        if ("#all".equals(fulltextquery)) {
+            try {
+                projectHolders = ProjectGeneratorFactory.getInstance().getProjects();
+            } catch (Exception e) {
+                logger.error("Failed to load project list", e);
+                return new ResponseEntity<SearchResult>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            try {
+                projectHolders = Iterables.filter(ProjectGeneratorFactory.getInstance().getProjects(), Predicates.FullTextFilter(fulltextquery, new Function<ProjectGeneratorFactory.ProjectHolder, String>() {
+
+                    @Override
+                    public String apply(ProjectGeneratorFactory.ProjectHolder projectHolder) {
+                        return new StringBuilder(projectHolder.getGenerator().getProjectName()).append(" ").append(projectHolder.getGenerator().getDescription()).append(" ").append(projectHolder.getGenerator().getPresentation()).toString();
+                    }
+
+                }));
+            } catch (Exception e) {
+                logger.error("Failed to load project list", e);
+                return new ResponseEntity<SearchResult>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        final SearchResult searchResult = new SearchResult();
+        searchResult.setProjects(ImmutableList.copyOf(Iterables.transform(projectHolders, new Function<ProjectGeneratorFactory.ProjectHolder, ProjectSummary>() {
+
+            @Override
+            public ProjectSummary apply(ProjectGeneratorFactory.ProjectHolder f) {
+                return new ProjectSummary().
+                        id(f.getId()).
+                        title(f.getGenerator().getProjectName()).
+                        description(f.getGenerator().getDescription()).
+                        thumbnailurl(f.getGenerator().getThumbnailURL());
+
+            }
+        })));
+        return new ResponseEntity<SearchResult>(searchResult, HttpStatus.OK);
     }
 
     public ResponseEntity<Resource> apiGenerateprojectPost(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProjectGenerator body) {

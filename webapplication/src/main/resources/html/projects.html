@@ -101,23 +101,17 @@
                         <h1 class="text-primary">Folding Chair</h1>
                     </div><!--end .col -->
                     <div class="col-lg-8">
-                        <article class="margin-bottom-xxl">
+                        <article class="margin-bottom-xxl" ng-repeat="project in searchResult.projects">
                             <p class="lead">
-                                The first Rat Trappers project : the folding chair
+                                {{project.title}}
                             </p>
                             <p class="lead">
-                                <a href="project.html#!/?projectId=fc98a674c91db1ff77e067f900aaa427"><u>Go to project page</u></a>
-                            </p>
-                        </article>
-                        <article class="margin-bottom-xxl">
-                            <p class="lead">
-                                The towely briefcase sample
+                                {{project.description}}
                             </p>
                             <p class="lead">
-                                <a href="project.html#!/?projectId=7695993d18ce6bc7df68bc0d43af696a"><u>Go to project page</u></a>
+                                <a href="project.html#!/?projectId={{project.id}}"><u>Go to project page</u></a>
                             </p>
                         </article>
-
                     </div><!--end .col -->
                 </div><!--end .row -->
                 <!-- END INTRO -->
@@ -192,13 +186,49 @@
 </div><!--end #base-->
 <!-- END BASE -->
 
+    <script>
+
+var app = angular.module("Rattrap", []);
+
+app.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
+
+app.controller("ProjectPresentation", function($scope, $http, $sce, $location, projectManager, renderDynamic) {
+            var debug = $location.search().debug == "true";
+			$http.get('/api/search?fulltextquery=%23all').
+			then(function successCallback(response) {
+				$scope.searchResult = response.data;
+				if (debug) {
+					console.log("'" + response.data + "'");
+				}
+				$scope.errorMessages = $sce.trustAsHtml("");
+			}, function errorCallback(response){
+				var errorMessage = response.headers('RenderingError');
+				console.log("Header:"+errorMessage);
+			});
+});
+
+		</script>
+
+
 <!-- BEGIN JAVASCRIPT -->
 <script src="assets/js/libs/jquery/jquery-1.11.2.min.js"></script>
 <script src="assets/js/libs/jquery/jquery-migrate-1.2.1.min.js"></script>
 <script src="assets/js/libs/bootstrap/bootstrap.min.js"></script>
 <script src="assets/js/libs/spin.js/spin.min.js"></script>
 <script src="assets/js/libs/autosize/jquery.autosize.min.js"></script>
+<script src="assets/js/libs/moment/moment.min.js"></script>
+<script src="assets/js/libs/flot/jquery.flot.min.js"></script>
+<script src="assets/js/libs/flot/jquery.flot.time.min.js"></script>
+<script src="assets/js/libs/flot/jquery.flot.resize.min.js"></script>
+<script src="assets/js/libs/flot/jquery.flot.orderBars.js"></script>
+<script src="assets/js/libs/flot/jquery.flot.pie.js"></script>
+<script src="assets/js/libs/flot/curvedLines.js"></script>
+<script src="assets/js/libs/jquery-knob/jquery.knob.min.js"></script>
+<script src="assets/js/libs/sparkline/jquery.sparkline.min.js"></script>
 <script src="assets/js/libs/nanoscroller/jquery.nanoscroller.min.js"></script>
+<script src="assets/js/libs/d3/d3.min.js"></script>
+<script src="assets/js/libs/d3/d3.v3.js"></script>
+<script src="assets/js/libs/rickshaw/rickshaw.min.js"></script>
 <script src="assets/js/core/source/App.js"></script>
 <script src="assets/js/core/source/AppNavigation.js"></script>
 <script src="assets/js/core/source/AppOffcanvas.js"></script>
@@ -207,7 +237,7 @@
 <script src="assets/js/core/source/AppNavSearch.js"></script>
 <script src="assets/js/core/source/AppVendor.js"></script>
 <script src="assets/js/core/demo/Demo.js"></script>
-<script src="assets/js/core/demo/DemoLayouts.js"></script>
+<script src="assets/js/core/demo/DemoDashboard.js"></script>
 <!-- END JAVASCRIPT -->
 
 </body>
