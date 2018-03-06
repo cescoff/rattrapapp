@@ -106,7 +106,7 @@
                     <div class="col-lg-8">
                         <article class="margin-bottom-xxl" ng-repeat="project in searchResult.projects">
                             <p class="lead">
-                                {{project.title}}
+                                <a href="project.html#!/?projectId={{project.id}}"><strong>{{project.title}}</strong></a>
                             </p>
                             <p class="lead">
                                 {{project.description}}
