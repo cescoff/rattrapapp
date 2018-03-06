@@ -195,7 +195,7 @@ var app = angular.module("Rattrap", []);
 
 app.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
 
-app.controller("ProjectsPresentation", function($scope, $http, $sce, $location, projectManager, renderDynamic) {
+app.controller("ProjectsPresentation", function($scope, $http, $sce, $location) {
             var debug = $location.search().debug == "true";
 			$http.get('/api/search?fulltextquery=%23all').
 			then(function successCallback(response) {
