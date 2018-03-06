@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
  * A dynamic project parameter
  */
 @ApiModel(description = "A dynamic project parameter")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-25T10:38:37.158Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
 
 public class ProjectParameter   {
   @JsonProperty("name")

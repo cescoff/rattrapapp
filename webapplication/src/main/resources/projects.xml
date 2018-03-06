@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<projects>
+    <projects>
+        <project>
+            <url>https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml</url>
+            <status>PROD</status>
+        </project>
+        <project>
+            <url>https://raw.githubusercontent.com/cescoff/towely/master/project.xml</url>
+            <status>PROD</status>
+        </project>
+    </projects>
+</projects>

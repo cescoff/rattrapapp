@@ -8,6 +8,7 @@ package io.swagger.api;
 import io.swagger.model.Error;
 import io.swagger.model.PreviewRenderingRef;
 import io.swagger.model.Project;
+import io.swagger.model.ProjectGenerator;
 import org.springframework.core.io.Resource;
 import io.swagger.model.SearchResult;
 import io.swagger.model.User;
@@ -26,10 +27,22 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-25T10:38:37.158Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
 
 @Api(value = "api", description = "the api API")
 public interface ApiApi {
+
+    @ApiOperation(value = "", notes = "Generates a sample project from your parameters ", response = Resource.class, tags={  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Successful response", response = Resource.class),
+        @ApiResponse(code = 201, message = "User created", response = Boolean.class) })
+    
+    @RequestMapping(value = "/api/generateproject",
+        produces = { "application/octet-stream" }, 
+        consumes = { "application/json" },
+        method = RequestMethod.POST)
+    ResponseEntity<Resource> apiGenerateprojectPost(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProjectGenerator body);
+
 
     @ApiOperation(value = "", notes = "Gets a project informations ", response = Project.class, tags={  })
     @ApiResponses(value = { 

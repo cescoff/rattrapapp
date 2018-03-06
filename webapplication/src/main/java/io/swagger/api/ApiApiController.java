@@ -1,9 +1,10 @@
 package io.swagger.api;
 
-import com.edraw.ProjectGenerator;
+import com.edraw.ProjectConfigBuilder;
 import com.edraw.ValidationError;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.rattrap.spring.ProjectGeneratorFactory;
 import com.rattrap.spring.SwaggerUtils;
 import io.swagger.model.*;
@@ -38,10 +39,12 @@ import java.util.zip.ZipOutputStream;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-01-25T10:38:37.158Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
 
 @Controller
 public class ApiApiController implements ApiApi {
+
+
 
     private static Logger logger = LoggerFactory.getLogger(ApiApiController.class);
 
@@ -55,7 +58,7 @@ public class ApiApiController implements ApiApi {
         if (StringUtils.isEmpty(body.getProjectid())) {
             return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
         }
-        final ProjectGenerator projectGenerator;
+        final com.edraw.ProjectGenerator projectGenerator;
         try {
             projectGenerator = ProjectGeneratorFactory.getInstance().getProjectById(body.getProjectid());
         } catch (Exception e) {
@@ -69,7 +72,7 @@ public class ApiApiController implements ApiApi {
         if (!projectGenerator.hasDynamicPreview()) {
             return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
         }
-        final ImmutableMap.Builder<String, String> parameters = ImmutableMap.builder();
+        final Builder<String, String> parameters = ImmutableMap.builder();
         if (body.getParameters() != null) {
             for (final ProjectParameter projectParameter : body.getParameters()) {
                 parameters.put(projectParameter.getName(), projectParameter.getValue());
@@ -92,7 +95,7 @@ public class ApiApiController implements ApiApi {
     }
 
     public ResponseEntity<Project> apiProjectGet( @NotNull@ApiParam(value = "The id of the project", required = true) @RequestParam(value = "id", required = true) String id) {
-        final ProjectGenerator projectGenerator;
+        final com.edraw.ProjectGenerator projectGenerator;
         try {
             projectGenerator = ProjectGeneratorFactory.getInstance().getProjectById(id);
         } catch (Exception e) {
@@ -115,7 +118,7 @@ public class ApiApiController implements ApiApi {
         if (StringUtils.isEmpty(body.getProjectid())) {
             return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
         }
-        final ProjectGenerator projectGenerator;
+        final com.edraw.ProjectGenerator projectGenerator;
         try {
             projectGenerator = ProjectGeneratorFactory.getInstance().getProjectById(body.getProjectid());
         } catch (Exception e) {
@@ -129,7 +132,7 @@ public class ApiApiController implements ApiApi {
         if (!projectGenerator.hasDynamicPreview()) {
             return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
         }
-        final ImmutableMap.Builder<String, String> parameters = ImmutableMap.builder();
+        final Builder<String, String> parameters = ImmutableMap.builder();
         if (body.getParameters() != null) {
             for (final ProjectParameter projectParameter : body.getParameters()) {
                 parameters.put(projectParameter.getName(), projectParameter.getValue());
@@ -193,6 +196,26 @@ public class ApiApiController implements ApiApi {
     public ResponseEntity<SearchResult> apiSearchGet( @NotNull@ApiParam(value = "The search query", required = true) @RequestParam(value = "fulltextquery", required = true) String fulltextquery) {
         // do some magic!
         return new ResponseEntity<SearchResult>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<Resource> apiGenerateprojectPost(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProjectGenerator body) {
+        final ProjectConfigBuilder projectConfigBuilder = new ProjectConfigBuilder();
+        projectConfigBuilder.withName(body.getName()).
+                withDescription(body.getDescription()).
+                withPresentation(body.getPresentation()).
+                withUrlName(body.getUrlname()).
+                withThumbnailURL(body.getPreviewurl()).
+                withGgitHubRepoName(body.getReponame()).
+                withVariableNames(body.getVariablenames());
+
+        final com.edraw.Resource zippedProject = projectConfigBuilder.buildArchive();
+
+        try {
+            return new ResponseEntity<Resource>(new ByteArrayResource(IOUtils.toByteArray(zippedProject.open()), body.getName() + ".zip"), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Failed to generate new project", e);
+            return new ResponseEntity<Resource>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
