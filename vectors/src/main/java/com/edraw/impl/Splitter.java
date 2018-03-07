@@ -40,6 +40,7 @@ public class Splitter implements Transformation {
 			logger.info("Splitting BluePrint");
 			final Optional<Pair<Iterable<Position>, Iterable<Position>>> globalSplit = splitBoundingRectangle(bluePrint.getBoundingRectangle());
 			if (!globalSplit.isPresent()) {
+				logger.info("No split bounding rectangle found for positons start='{}', end='{}'", splitterLine.getValue0(), splitterLine.getValue1());
 				result.add(bluePrint);
 			} else {
 				logger.info("Splitting...");
