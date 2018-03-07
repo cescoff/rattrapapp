@@ -9,5 +9,9 @@
             <url>https://raw.githubusercontent.com/cescoff/towely/master/project.xml</url>
             <status>PROD</status>
         </project>
+        <project>
+            <url>https://raw.githubusercontent.com/cescoff/rattrapstool/master/project.xml</url>
+            <status>PROD</status>
+        </project>
     </projects>
 </projects>
