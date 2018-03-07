@@ -767,7 +767,11 @@ public class BluePrintParser {
 			}
 
 			if (crenelLength.getDistance() < (2*offSet.getDistance() + 3*minWidth.getDistance())) {
-				throw new IllegalStateException("Crenel '" + laserCrenel.getName() + "' is too short for width '" + minWidth + "' with offset '" + offSet + "'");
+				if (laserCrenel != null) {
+					throw new IllegalStateException("Crenel '" + laserCrenel.getName() + "' is too short for width '" + minWidth + "' with offset '" + offSet + "'");
+				} else if (laserHinge != null) {
+					throw new IllegalStateException("Crenel '" + laserHinge.getName() + "' is too short for width '" + minWidth + "' with offset '" + offSet + "'");
+				}
 			}
 			
 			final Distance realWidth = new Distance((crenelLength.getDistance() - 2*offSet.getDistance()) / numberOfCrenels, crenelLength.getUnit());
