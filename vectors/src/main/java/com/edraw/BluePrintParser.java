@@ -916,10 +916,10 @@ public class BluePrintParser {
 				positionContext.registerPoint(name + "BottomMiddle", layer, realEnd);
 				
 				final double mountSpan = 2 * Math.abs(height.getDistance() - hingeHoleDistance - (hingeHoleDistance + 2*hingeHoleRadius));
-				if (mountSpan <= 0 || laserHinge.isAutoAxleDistanceCut()) {
+				if (mountSpan <= 0 || !laserHinge.isAutoAxleDistanceCut()) {
 					if (mountSpan == 0) {
 						logger.info("Hinge '" + name + "/" + layer + "' has no mount span");
-					} else if (laserHinge.isAutoAxleDistanceCut()) {
+					} else if (!laserHinge.isAutoAxleDistanceCut()) {
 						logger.info("Hinge '" + name + "/" + layer + "' is configured not to take mount span into account");
 					} else {
 						logger.error("Hinge '" + name + "/" + layer + "' has negative mount span (" + mountSpan + ")");
