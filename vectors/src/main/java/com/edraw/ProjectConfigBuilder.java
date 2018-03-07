@@ -1,12 +1,10 @@
 package com.edraw;
 
-import com.edraw.config.DistanceUnit;
-import com.edraw.config.OutputConfig;
-import com.edraw.config.OutputFormat;
-import com.edraw.config.ProjectConfig;
+import com.edraw.config.*;
 import com.edraw.config.laser.LaserBluePrint;
 import com.edraw.config.laser.LaserPoint;
 import com.edraw.impl.StringResource;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -100,7 +98,7 @@ public class ProjectConfigBuilder {
             throw new IllegalArgumentException("Repository URL name is required");
         }
 
-        final String url = new StringBuilder("https://github.com/").append(gitHubRepoName).append("/").append(urlName).toString();
+        final String url = StringUtils.replace(StringUtils.replace("https://raw.githubusercontent.com/${repo}/${project}/master", "${repo}", gitHubRepoName), "${project}", urlName);
 
         final List<ProjectConfig.DefaultVariableConfig> variableConfigs = Lists.newArrayList();
 
@@ -113,7 +111,7 @@ public class ProjectConfigBuilder {
                 getFileURL(url, variablesFileName),
                 getFileURL(url, planConfigurationFileName),
                 getFileURL(url, planOutputConfigFileName),
-                thumbnailURL,
+                getFileURL(url, thumbnailFileName),
                 getFileURL(url, thumbnailOutputConfigFileName),
                 getFileURL(url, planConfigurationFileName),
                 variableConfigs,
@@ -127,8 +125,17 @@ public class ProjectConfigBuilder {
         output.getLayers().add("Main");
         outputConfig.getOutputs().add(output);
 
+        final Variables variables = new Variables();
+        Iterables.addAll(variables.getVariables(), Iterables.transform(variableConfigs, new Function<ProjectConfig.DefaultVariableConfig, Variables.VariableDefinition>() {
+            @Override
+            public Variables.VariableDefinition apply(ProjectConfig.DefaultVariableConfig defaultVariableConfig) {
+                return new Variables.VariableDefinition(defaultVariableConfig.getName(), 1.0);
+            }
+        }));
+
         final List<Resource> result = Lists.newArrayList();
         result.add(getXmlResource(projectConfig, "project.xml"));
+        result.add(getXmlResource(variables, variablesFileName));
         result.add(getXmlResource(plan, planConfigurationFileName));
         result.add(getXmlResource(outputConfig, planOutputConfigFileName));
         result.add(getXmlResource(plan, thumbnailFileName));
@@ -205,7 +212,7 @@ public class ProjectConfigBuilder {
     }
 
     public static void main(String[] args) throws Exception {
-        final Resource zip = new ProjectConfigBuilder().withName("ProjectName").withDescription("Description").withPresentation("<p>Presentation</p>").withUrlName("project").withGgitHubRepoName("cescoff").withVariableName("var1").withVariableName("var2").buildArchive();
+        final Resource zip = new ProjectConfigBuilder().withName("ProjectName").withThumbnailURL("https://github.com/cescoff/<PROJECT_URL_NAME>/raw/master/project_preview.jpeg").withDescription("Description").withPresentation("<p>Presentation</p>").withUrlName("project").withGgitHubRepoName("cescoff").withVariableName("var1").withVariableName("var2").buildArchive();
         final FileOutputStream fileOutputStream = new FileOutputStream(new File(args[0]));
         IOUtils.copy(zip.open(), fileOutputStream);
         fileOutputStream.close();

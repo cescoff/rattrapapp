@@ -60,7 +60,10 @@ public class LaserHinge extends LaserDrawing {
 	
 	@XmlAttribute(name = "sharp-angle-layer")
 	private String sharpAngleLayer;
-	
+
+	@XmlAttribute(name = "auto-axle-distance-cut")
+	private boolean autoAxleDistanceCut = true;
+
 	public LaserHinge() {
 	}
 
@@ -128,4 +131,5 @@ public class LaserHinge extends LaserDrawing {
 		return sharpAngleLayer;
 	}
 
+	public boolean isAutoAxleDistanceCut() { return autoAxleDistanceCut; }
 }
