@@ -41,6 +41,15 @@ public class SwaggerUtils {
                             .name("DynamicPreview")
                             .url("/preview"));
                 }
+                if (projectGenerator.getPreviewURLs() != null) {
+                    for (final String url : projectGenerator.getPreviewURLs()) {
+                        result.addPreviewsItem(new PreviewRenderingRef()
+                                .outputformat(PreviewRenderingRef.OutputformatEnum.SVG)
+                                .format("IMG")
+                                .name("StaticPreview")
+                                .url(url));
+                    }
+                }
                 result.parameters(Lists.newArrayList(Iterables.transform(projectGenerator.getVariables().entrySet(), new Function<Map.Entry<String, String>, ProjectParameter>() {
                     @Override
                     public ProjectParameter apply(Map.Entry<String, String> stringStringEntry) {

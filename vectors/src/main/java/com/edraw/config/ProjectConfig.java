@@ -24,6 +24,9 @@ public class ProjectConfig {
 	@XmlElement(name = "thumbnail-url")
 	private String thumbnailURL;
 
+	@XmlElementWrapper(name = "previews") @XmlElement(name = "url")
+	private Collection<String> previewURLs = Lists.newArrayList();
+
 	@XmlElement
 	private String description;
 
@@ -84,6 +87,8 @@ public class ProjectConfig {
 	public String getThumbnailURL() {
 		return thumbnailURL;
 	}
+
+	public Collection<String> getPreviewURLs() { return previewURLs; }
 
 	public String getPresentationText() {
 		return presentationText;

@@ -45,7 +45,9 @@ public class ProjectGenerator {
 	private String presentation = null;
 	
 	private String thumbnailURL = null;
-	
+
+	private Iterable<String> previewURLs = null;
+
 	private Resource variablesResource = null;
 	
 	private Resource templateResource = null;
@@ -118,7 +120,9 @@ public class ProjectGenerator {
 		this.description = config.getDescription();
 		this.presentation = config.getPresentationText();
 		this.thumbnailURL = config.getThumbnailURL();
-		
+
+		this.previewURLs = config.getPreviewURLs();
+
 		if (StringUtils.isEmpty(config.getVariablesURL())) {
 			throw new IllegalArgumentException("Variables URL is mandatory");
 		}
@@ -364,5 +368,12 @@ public class ProjectGenerator {
 		return thumbnailURL;
 	}
 
-
+	public Iterable<String> getPreviewURLs() {
+		try {
+			init();
+		} catch (Exception e) {
+			throw new IllegalStateException("Wrong project configuration", e);
+		}
+		return previewURLs;
+	}
 }

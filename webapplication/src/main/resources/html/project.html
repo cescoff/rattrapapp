@@ -95,7 +95,7 @@
 									</div><!--end .card-head -->
 									<div class="card-body">
 										<span>
-											<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" width="100%"/>
+											<img style="display: block; margin: 0 auto;" src="{{staticPreview}}" width="100%"/>
 										</span>
 											<span ng-bind-html="project.presentation">
 										</span>
@@ -240,6 +240,7 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 	$scope.messages = "Loading...";
 	$scope.project = emptyProject;
 	$scope.dynamicPreview = $sce.trustAsHtml("<img src=\"assets/img/loading.gif\" />");
+	$scope.staticPreview = "assets/img/loading.gif";
 	$scope.enableSplitters = true;
 	$scope.errorMessages = $sce.trustAsHtml("");
 
@@ -360,6 +361,12 @@ app.factory('projectManager', function () {
 				then(function successCallback(response) {
 					$scope.project = response.data;
 					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);
+					var previewUrls = response.data.previews;
+					for (var i = 0; i < previewUrls; i++) {
+						if (previewUrls[i].name != "DynamicPreview") {
+							$scope.staticPreview = previewUrls[i].url;
+						}
+					}
 			}, function errorCallback(response){
 					$scope.project.name = "Error";
 					console.log("Unable to perform get request");

@@ -15,6 +15,9 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LaserPath extends LaserDrawing {
 
+	@XmlAttribute(name = "filet-radius")
+	private String filetRadius;
+
 	@XmlElement(name = "point")
 	private Collection<LaserPoint> points = Lists.newArrayList();
 	
@@ -31,5 +34,7 @@ public class LaserPath extends LaserDrawing {
 	public String getAction() {
 		return action;
 	}
-	
+
+	public String getFiletRadius() { return filetRadius; }
+
 }

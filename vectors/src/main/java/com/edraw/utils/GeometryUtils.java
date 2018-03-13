@@ -2,6 +2,7 @@ package com.edraw.utils;
 
 import com.edraw.Direction;
 import com.edraw.Position;
+import com.edraw.Vector;
 import com.edraw.config.Distance;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
@@ -327,5 +328,34 @@ public abstract class GeometryUtils {
 			
 		};
 	}
-	
+
+	private static Vector getVector(final Position point1, final Position point2, final DistanceUnit distanceUnit) {
+		final Distance distance = getDistance(point1, point2, distanceUnit);
+		return new Vector() {
+			@Override
+			public Position getPoint1() {
+				return point1;
+			}
+
+			@Override
+			public Position getPoint2() {
+				return point2;
+			}
+
+			@Override
+			public Distance getLength() {
+				return distance;
+			}
+		};
+	}
+
+	private static Vector getBisectrixVector(final Vector vector1, final Vector vector2) {
+
+		throw new IllegalStateException("No implemented");
+	}
+
+	private static Vector getInnerCircle(final Vector vector1, final Vector vector2, final Distance radius) {
+		throw new IllegalStateException("No implemented");
+	}
+
 }
