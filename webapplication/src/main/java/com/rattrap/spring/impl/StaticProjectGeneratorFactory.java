@@ -27,7 +27,7 @@ public class StaticProjectGeneratorFactory extends ProjectGeneratorFactory {
 
     private static final String PROJECT_LIST_URL = "https://raw.githubusercontent.com/cescoff/rattrapapp/master/webapplication/src/main/resources/projects.xml";
 
-    private static long CACHE_TTL = TimeUnit.MINUTES.toMillis(3);
+    private static long CACHE_TTL = TimeUnit.MINUTES.toMillis(1);
 
     private Map<String, LocalDateTime> CACHE_TTLS = Maps.newHashMap();
 
