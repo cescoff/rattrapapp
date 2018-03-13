@@ -106,14 +106,21 @@
                                 <header ng-bind="project.title"></header>
                             </div><!--end .card-head -->
                             <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6 hidden-xs">
 										<span>
-                                            <a href="project.html#!/?projectId={{project.id}}"><img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" title="{{project.title}}" width="320"/></a>
+                                            <a href="project.html#!/?projectId={{project.id}}"><img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" title="{{project.title}}" width="200"/></a>
 										</span>
+                                    </div>
+                                    <div class="col-sm-6 hidden-xs">
                                         <span ng-bind="project.description">
 										</span>
                                         <p>
                                             <a href="project.html#!/?projectId={{project.id}}"><u>Go to project page</u></a>
                                         </p>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
