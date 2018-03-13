@@ -362,8 +362,10 @@ app.factory('projectManager', function () {
 					$scope.project = response.data;
 					$scope.project.presentation = $sce.trustAsHtml($scope.project.presentation);
 					var previewUrls = response.data.previews;
-					for (var i = 0; i < previewUrls; i++) {
+					console.log("Searching for previews (size");
+					for (var i = 0; i < previewUrls.length; i++) {
 						if (previewUrls[i].name != "DynamicPreview") {
+							console.log("Found preview '" + previewUrls[i].name + "' with url '" + previewUrls[i].url + "'");
 							$scope.staticPreview = previewUrls[i].url;
 						}
 					}
