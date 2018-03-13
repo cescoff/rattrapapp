@@ -100,14 +100,14 @@
 
                 <!-- BEGIN INTRO -->
                 <div class="row" ng-repeat="project in searchResult.projects">
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-md-8">
                         <div class="card card-underline">
                             <div class="card-head">
                                 <header ng-bind="project.title"></header>
                             </div><!--end .card-head -->
                             <div class="card-body">
 										<span>
-											<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" title="{{project.title}}" width="100%"/>
+											<img style="display: block; margin: 0 auto;" src="{{project.thumbnailurl}}" title="{{project.title}}"/>
 										</span>
                                         <span ng-bind="project.description">
 										</span>
