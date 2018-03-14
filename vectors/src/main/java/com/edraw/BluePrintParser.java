@@ -119,10 +119,12 @@ public class BluePrintParser {
 				final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
 				final Set<String> acceptedNames = Sets.newHashSet(layerNames);
 				for (final Drawing drawing : getDrawings()) {
+				    logger.debug("Drawing '{}' is associated to layer '{}'", drawing.getName(), drawing.getLayer().getName());
 					if (acceptedNames.contains(drawing.getLayer().getName())) {
 						result.add(drawing);
 					}
 					for (final Layer extraLayer : drawing.getExtraLayers()) {
+                        logger.debug("Drawing '{}' is associated to layer '{}'", drawing.getName(), extraLayer.getName());
 						if (extraLayer.isActive() && acceptedNames.contains(extraLayer.getName())) {
 							result.add(drawing);
 						}
