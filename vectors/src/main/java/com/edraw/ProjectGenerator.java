@@ -272,13 +272,13 @@ public class ProjectGenerator {
 
 		for (final VariableDefinition variableDefinition : variables.getVariables()) {
 			if (newVariables.containsKey(variableDefinition.getName())) {
-				final double value;
+				final String value;
 				if (StringUtils.isEmpty(newVariables.get(variableDefinition.getName()))) {
-					value = 0.0;
+					value = "0.0";
 				} else {
-					value = Double.parseDouble(newVariables.get(variableDefinition.getName()));
+					value = newVariables.get(variableDefinition.getName());
 				}
-				variableDefinition.setValue(value + "");
+				variableDefinition.setValue(value);
 			} else if (this.customVariables.containsKey(variableDefinition.getName())) {
 				final String value;
 				if (StringUtils.isEmpty(this.customVariables.get(variableDefinition.getName()))) {
