@@ -280,13 +280,13 @@ public class ProjectGenerator {
 				}
 				variableDefinition.setValue(value + "");
 			} else if (this.customVariables.containsKey(variableDefinition.getName())) {
-				final double value;
+				final String value;
 				if (StringUtils.isEmpty(this.customVariables.get(variableDefinition.getName()))) {
-					value = 0.0;
+					value = "0.0";
 				} else {
-					value = Double.parseDouble(this.customVariables.get(variableDefinition.getName()));
+					value = this.customVariables.get(variableDefinition.getName());
 				}
-				variableDefinition.setValue(value + "");
+				variableDefinition.setValue(value);
 			}
 		}
 
