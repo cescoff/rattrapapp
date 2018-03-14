@@ -152,7 +152,7 @@ public class LaserPlanGenerator {
 		}
 		String resultDoc = documentationString;
 		for (final String varName : docVars) {
-			final String varValue = varContext.evaluate(StringUtils.remove(StringUtils.remove(varName, "${"), "}")) + "";
+			final String varValue = varContext.evaluate(StringUtils.remove(StringUtils.remove(varName, "${"), "}"), Double.class) + "";
 			resultDoc = StringUtils.replace(resultDoc, varName, varValue);
 		}
 		return new StringResource("Documentation." + FilenameUtils.getExtension(this.documentation.getName()), resultDoc);
@@ -168,7 +168,7 @@ public class LaserPlanGenerator {
 			} else {
 	    		unit = "";
 			}
-	        result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName)).append(unit).append("</li>\n");
+	        result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName, Double.class)).append(unit).append("</li>\n");
         }
 		result.append("\t\t</ul>");
 
@@ -182,7 +182,7 @@ public class LaserPlanGenerator {
 				} else {
 					unit = "";
 				}
-				result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName)).append(unit).append("</li>\n");
+				result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.print(varName)).append(unit).append("</li>\n");
 			}
 			result.append("\t\t</ul>");
 		}
@@ -232,21 +232,4 @@ public class LaserPlanGenerator {
 	}
 
 
-	public static void main(String[] args) throws Exception {
-		final String test = "This is test for var ${fullTopSliderAxleWidth} and var ${fullSeatHingeAxleWidth}...";
-		final VarContext varContext = new VarContext() {
-			@Override
-			public double evaluate(String expression) throws Exception {
-				return expression.length();
-			}
-		};
-		final Resource doc = new LaserPlanGenerator(null,
-				null,
-				null, null,
-				null,
-				new StringResource("Documentation.html", test),
-		false).getDocumentation(varContext);
-		System.out.println(IOUtils.toString(new InputStreamReader(doc.open())));
-	}
-	
 }

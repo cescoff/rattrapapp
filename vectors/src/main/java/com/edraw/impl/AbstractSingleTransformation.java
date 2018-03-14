@@ -4,12 +4,7 @@ import com.edraw.Position;
 import com.edraw.Transformation;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
-import com.edraw.geom.BluePrint;
-import com.edraw.geom.Circle;
-import com.edraw.geom.Drawing;
-import com.edraw.geom.Path;
-import com.edraw.geom.Point;
-import com.edraw.geom.Rectangle;
+import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -94,10 +89,15 @@ public abstract class AbstractSingleTransformation implements Transformation, Fu
 				return circle.getName();
 			}
 			
-			public String getLayer() {
+			public Layer getLayer() {
 				return circle.getLayer();
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return circle.getExtraLayers();
+			}
+
 			public Position getCenter() {
 				return transformPosition(circle.getCenter());
 			}
@@ -158,10 +158,15 @@ public abstract class AbstractSingleTransformation implements Transformation, Fu
 				return rectangle.getName();
 			}
 			
-			public String getLayer() {
+			public Layer getLayer() {
 				return rectangle.getLayer();
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return rectangle.getExtraLayers();
+			}
+
 			public Position getCenter() {
 				return transformPosition(rectangle.getCenter());
 			}
@@ -231,10 +236,15 @@ public abstract class AbstractSingleTransformation implements Transformation, Fu
 				return path.getName();
 			}
 			
-			public String getLayer() {
+			public Layer getLayer() {
 				return path.getLayer();
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return path.getExtraLayers();
+			}
+
 			public Position getCenter() {
 				return transformPosition(path.getCenter());
 			}
@@ -268,10 +278,15 @@ public abstract class AbstractSingleTransformation implements Transformation, Fu
 				return source.getName();
 			}
 			
-			public String getLayer() {
+			public Layer getLayer() {
 				return source.getLayer();
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return source.getExtraLayers();
+			}
+
 			public Position getCenter() {
 				return transformPosition(source.getCenter());
 			}

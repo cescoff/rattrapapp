@@ -7,12 +7,7 @@ import java.util.Set;
 
 import com.edraw.Position;
 import com.edraw.config.DistanceUnit;
-import com.edraw.geom.BluePrint;
-import com.edraw.geom.Circle;
-import com.edraw.geom.Drawing;
-import com.edraw.geom.Path;
-import com.edraw.geom.Point;
-import com.edraw.geom.Rectangle;
+import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -85,7 +80,7 @@ public abstract class BluePrintUtils {
 				final Set<String> indexedLayerNames = Sets.newHashSet(layerNames);
 				final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
 				for (final Drawing drawing : drawings) {
-					if (StringUtils.isNotEmpty(drawing.getLayer())) {
+					if (drawing.getLayer() == null || StringUtils.isNotEmpty(drawing.getLayer().getName())) {
 						if (indexedLayerNames.contains(drawing.getLayer())) {
 							result.add(drawing);
 						}
@@ -124,10 +119,15 @@ public abstract class BluePrintUtils {
 						return null;
 					}
 					
-					public String getLayer() {
+					public Layer getLayer() {
 						return null;
 					}
-					
+
+					@Override
+					public Iterable<Layer> getExtraLayers() {
+						return Collections.emptyList();
+					}
+
 					public Position getCenter() {
 						return position;
 					}

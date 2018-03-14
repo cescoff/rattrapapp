@@ -73,6 +73,10 @@ public class Variables {
 			return value;
 		}
 
+		public void setValue(String value) {
+			this.value = value;
+		}
+
 		public boolean isPrint() {
 			return print;
 		}

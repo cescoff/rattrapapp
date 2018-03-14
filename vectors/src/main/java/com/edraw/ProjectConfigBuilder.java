@@ -129,7 +129,7 @@ public class ProjectConfigBuilder {
         Iterables.addAll(variables.getVariables(), Iterables.transform(variableConfigs, new Function<ProjectConfig.DefaultVariableConfig, Variables.VariableDefinition>() {
             @Override
             public Variables.VariableDefinition apply(ProjectConfig.DefaultVariableConfig defaultVariableConfig) {
-                return new Variables.VariableDefinition(defaultVariableConfig.getName(), 1.0);
+                return new Variables.VariableDefinition(defaultVariableConfig.getName(), "1.0");
             }
         }));
 

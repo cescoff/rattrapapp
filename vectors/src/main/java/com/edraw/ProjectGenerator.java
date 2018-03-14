@@ -276,7 +276,7 @@ public class ProjectGenerator {
 				} else {
 					value = Double.parseDouble(newVariables.get(variableDefinition.getName()));
 				}
-				variableDefinition.setValue(value);
+				variableDefinition.setValue(value + "");
 			} else if (this.customVariables.containsKey(variableDefinition.getName())) {
 				final double value;
 				if (StringUtils.isEmpty(this.customVariables.get(variableDefinition.getName()))) {
@@ -284,7 +284,7 @@ public class ProjectGenerator {
 				} else {
 					value = Double.parseDouble(this.customVariables.get(variableDefinition.getName()));
 				}
-				variableDefinition.setValue(value);
+				variableDefinition.setValue(value + "");
 			}
 		}
 

@@ -6,6 +6,7 @@ import com.edraw.Position;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.geom.Drawing;
+import com.edraw.geom.Layer;
 import com.edraw.geom.Rectangle;
 
 public class EmptyRectangle implements Rectangle {
@@ -23,8 +24,13 @@ public class EmptyRectangle implements Rectangle {
 	}
 
 	@Override
-	public String getLayer() {
+	public Layer getLayer() {
 		return null;
+	}
+
+	@Override
+	public Iterable<Layer> getExtraLayers() {
+		return Collections.emptyList();
 	}
 
 	@Override

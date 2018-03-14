@@ -7,12 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.edraw.Position;
 import com.edraw.Transformation;
 import com.edraw.config.LaserAction;
-import com.edraw.geom.BluePrint;
-import com.edraw.geom.Circle;
-import com.edraw.geom.Drawing;
-import com.edraw.geom.Path;
-import com.edraw.geom.Point;
-import com.edraw.geom.Rectangle;
+import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -106,10 +101,10 @@ public class Splitter implements Transformation {
 					}
 				}
 				if (positions0.size() >= 2) {
-					drawings0.add(getPath(drawing.getName(), drawing.getLayer(), positions0, ((Path) drawing).getBorderAction()));
+					drawings0.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions0, ((Path) drawing).getBorderAction()));
 				}
 				if (positions1.size() >= 2) {
-					drawings1.add(getPath(drawing.getName(), drawing.getLayer(), positions1, ((Path) drawing).getBorderAction()));
+					drawings1.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions1, ((Path) drawing).getBorderAction()));
 				}
 			}
 			final Pair<Iterable<Drawing>, Iterable<Drawing>> subdrawings = split(drawing.getSubDrawings(), globalSplit, false);
@@ -201,8 +196,8 @@ public class Splitter implements Transformation {
 //		final Iterable<Position> path0 = ImmutableList.<Position>builder().addAll(spliRectangles.get().getValue0()).add(Iterables.getFirst(spliRectangles.get().getValue0(), null)).build();
 //		final Iterable<Position> path1 = ImmutableList.<Position>builder().addAll(spliRectangles.get().getValue1()).add(Iterables.getFirst(spliRectangles.get().getValue1(), null)).build();
 		
-		return Optional.of(Pair.with(getPath(rectangle.getName(), rectangle.getLayer(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction()), 
-				getPath(rectangle.getName(), rectangle.getLayer(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction())));
+		return Optional.of(Pair.with(getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction()),
+				getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction())));
 	}
 	
 	private final Path getPath(final String name, final String layer, final Iterable<Position> positions, final LaserAction action) {
@@ -222,10 +217,26 @@ public class Splitter implements Transformation {
 			}
 			
 			@Override
-			public String getLayer() {
-				return layer;
+			public Layer getLayer() {
+
+				return new Layer() {
+					@Override
+					public String getName() {
+						return layer;
+					}
+
+					@Override
+					public boolean isActive() {
+						return true;
+					}
+				};
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return Collections.emptyList();
+			}
+
 			@Override
 			public Position getCenter() {
 				return GeometryUtils.getBaryCentricPosition(positions);
@@ -258,10 +269,26 @@ public class Splitter implements Transformation {
 							}
 							
 							@Override
-							public String getLayer() {
-								return layer;
+							public Layer getLayer() {
+
+								return new Layer() {
+									@Override
+									public String getName() {
+										return layer;
+									}
+
+									@Override
+									public boolean isActive() {
+										return true;
+									}
+								};
 							}
-							
+
+							@Override
+							public Iterable<Layer> getExtraLayers() {
+								return Collections.emptyList();
+							}
+
 							@Override
 							public Position getCenter() {
 								return position;

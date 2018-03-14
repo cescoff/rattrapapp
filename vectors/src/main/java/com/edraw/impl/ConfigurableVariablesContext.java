@@ -187,7 +187,18 @@ public class ConfigurableVariablesContext implements VarContext {
         throw new IllegalStateException("Type '" + dataType.getName() + "' is not supported");
 	}
 
-	private boolean isNumeric(final Class<?> dataType) {
+    @Override
+    public String print(String expression) throws Exception {
+        final String variableName = getVariableName(expression);
+        if (this.numericExpressionContext.containsKey(variableName)) {
+            return this.numericExpressionContext.get(variableName) + "";
+        } else if (this.booleanExpressionContext.containsKey(variableName)) {
+            return this.booleanExpressionContext.get(variableName) + "";
+        }
+        return "";
+    }
+
+    private boolean isNumeric(final Class<?> dataType) {
         if (double.class.equals(dataType)) {
             return true;
         }

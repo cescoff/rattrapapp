@@ -76,7 +76,7 @@ public class LaserHingeValidator implements LaserValidator<LaserHinge> {
 
 	private Iterable<ValidationMessage> getVarValidationMessages(final VarContext varContext, final String attributeName, final String varValue) {
 		try {
-			varContext.evaluate(varValue);
+			varContext.evaluate(varValue, Double.class);
 		} catch (Exception e) {
 			return ImmutableList.of(getErrorValidationMessage("Attribute '" + attributeName + "' has an invalid var value '" + varValue + "'"));
 		}

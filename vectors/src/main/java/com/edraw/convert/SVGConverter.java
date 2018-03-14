@@ -119,7 +119,7 @@ public class SVGConverter implements BluePrintConverter {
 		}
 		
 		final String layer;
-		if (StringUtils.isEmpty(drawing.getLayer())) {
+		if (drawing.getLayer() == null || StringUtils.isEmpty(drawing.getLayer().getName())) {
 			layer = "default_layer";
 		} else {
 			layer = drawing.getLayer() + "_layer";

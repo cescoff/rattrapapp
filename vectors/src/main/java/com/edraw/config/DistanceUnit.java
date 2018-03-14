@@ -43,14 +43,14 @@ public enum DistanceUnit {
 			if (matcher.find()) {
 				final String distanceStr = matcher.group(1);
 				try {
-					return new Distance(varContext.evaluate(distanceStr), distanceUnit);
+					return new Distance(varContext.evaluate(distanceStr, Double.class), distanceUnit);
 				} catch (Exception e) {
 					throw new IllegalStateException("Cannot evaluate expression '" + distanceStr + "'", e);
 				}
 			}
 		}
 		try {
-			return new Distance(varContext.evaluate(value), defaultUnit);
+			return new Distance(varContext.evaluate(value, Double.class), defaultUnit);
 		} catch (Exception e) {
 			throw new IllegalStateException("Cannot evaluate expression '" + value + "'", e);
 		}

@@ -7,6 +7,7 @@ import com.edraw.config.Distance;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.geom.Drawing;
+import com.edraw.geom.Layer;
 import com.edraw.geom.Rectangle;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -245,10 +246,26 @@ public abstract class GeometryUtils {
 				return name;
 			}
 			
-			public String getLayer() {
-				return layer;
+			public Layer getLayer() {
+
+				return new Layer() {
+					@Override
+					public String getName() {
+						return layer;
+					}
+
+					@Override
+					public boolean isActive() {
+						return true;
+					}
+				};
 			}
-			
+
+			@Override
+			public Iterable<Layer> getExtraLayers() {
+				return Collections.emptyList();
+			}
+
 			public Position getCenter() {
 				return getBaryCentricPosition(ImmutableList.<Position>of(topLeft, topRight, bottomRight, bottomLeft));
 			}
