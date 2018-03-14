@@ -52,7 +52,7 @@ public class Variables {
 		@XmlAttribute(name = "type")
 		private VariableType variableType = VariableType.NUMERIC;
 
-		@XmlAttribute(name = "type")
+		@XmlAttribute
 		private boolean print = false;
 		
 		public VariableDefinition() {
