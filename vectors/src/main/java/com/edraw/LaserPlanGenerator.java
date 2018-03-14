@@ -168,7 +168,7 @@ public class LaserPlanGenerator {
 			} else {
 	    		unit = "";
 			}
-	        result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.evaluate(varName, Double.class)).append(unit).append("</li>\n");
+	        result.append("\t\t\t<li>").append(label).append(" : ").append(varContext.print(varName)).append(unit).append("</li>\n");
         }
 		result.append("\t\t</ul>");
 
