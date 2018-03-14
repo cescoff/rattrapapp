@@ -52,6 +52,8 @@ public class SVGConverter implements BluePrintConverter {
 		stringBuilder.append("\t<svg width=\"").append(maxXAndY[0] + 10).append(bluePrint.getDefaultDistanceUnit().getSymbol()).append("\" height=\"").append(maxXAndY[1] + 10).append(bluePrint.getDefaultDistanceUnit().getSymbol()).append("\">\n");
 		stringBuilder.append("\n\t<!-- Delta_X=").append((boundingRectangle.getTopRight().getX() - boundingRectangle.getTopLeft().getX())).append(", Delta_Y=").append((boundingRectangle.getBottomLeft().getY() - boundingRectangle.getTopLeft().getY())).append(" -->\n");
 
+		logger.info("Blue print '{}' has the following layers : '{}'", bluePrint, Joiner.on("', '").join(bluePrint.getLayerNames()));
+
 		final Map<String, Iterable<Drawing>> layers2Drawings = Maps.newLinkedHashMap();
 		if (layers == null || Iterables.isEmpty(layers)) {
 			layers2Drawings.put("all", bluePrint.getLayerDrawings(layers));
