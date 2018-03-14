@@ -594,22 +594,29 @@ public class BluePrintParser {
 		
 	}
 
-	private static final Function<LaserLayer, Layer> LASER_TO_BLUEPRINT_LAYER = new Function<LaserLayer, Layer>() {
-		@Override
-		public Layer apply(final LaserLayer laserLayer) {
-			return new Layer() {
-				@Override
-				public String getName() {
-					return laserLayer.getName();
-				}
+	private final Function<LaserLayer, Layer> Laser2BluePrintLayer(final String drawingName) {
+	    return new Function<LaserLayer, Layer>() {
+            @Override
+            public Layer apply(final LaserLayer laserLayer) {
+                return new Layer() {
+                    @Override
+                    public String getName() {
+                        return laserLayer.getName();
+                    }
 
-				@Override
-				public boolean isActive() {
-					return laserLayer.isActive();
-				}
-			};
-		}
-	};
+                    @Override
+                    public boolean isActive() {
+                        try {
+                            return varContext.evaluate(laserLayer.getCondition(), Boolean.class);
+                        } catch (Throwable t) {
+                            logger.error("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'", t);
+                            throw new ValidationError(ErrorMessage.create("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'"));
+                        }
+                    }
+                };
+            }
+        };
+    }
 
 
 	private static final Function<String, Layer> TO_ACTIVE_BLUEPRINT_LAYER = new Function<String, Layer>() {
@@ -633,6 +640,9 @@ public class BluePrintParser {
 		return new Predicate<LaserLayer>() {
 			@Override
 			public boolean apply(LaserLayer laserLayer) {
+			    if (StringUtils.isEmpty(laserLayer.getName())) {
+			        return true;
+                }
 				try {
 					return varContext.evaluate(laserLayer.getCondition(), Boolean.class);
 				} catch (Throwable t) {
@@ -1055,9 +1065,9 @@ public class BluePrintParser {
 		@Override
 		public Iterable<Layer> getExtraLayers() {
 			if (laserCrenel != null) {
-				return Iterables.transform(laserCrenel.getExtraLayers(), LASER_TO_BLUEPRINT_LAYER);
+				return Iterables.transform(laserCrenel.getExtraLayers(), Laser2BluePrintLayer(getName()));
 			} else if (laserHinge != null) {
-				return Iterables.transform(laserHinge.getExtraLayers(), LASER_TO_BLUEPRINT_LAYER);
+				return Iterables.transform(laserHinge.getExtraLayers(), Laser2BluePrintLayer(getName()));
 			}
 			return Collections.emptyList();
 		}

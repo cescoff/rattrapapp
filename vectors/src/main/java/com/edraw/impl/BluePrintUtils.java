@@ -80,12 +80,17 @@ public abstract class BluePrintUtils {
 				final Set<String> indexedLayerNames = Sets.newHashSet(layerNames);
 				final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
 				for (final Drawing drawing : drawings) {
-					if (drawing.getLayer() == null || StringUtils.isNotEmpty(drawing.getLayer().getName())) {
+					if (drawing.getLayer() != null || StringUtils.isNotEmpty(drawing.getLayer().getName())) {
 						if (indexedLayerNames.contains(drawing.getLayer())) {
 							result.add(drawing);
 						}
 					} else {
 						result.add(drawing);
+					}
+					for (final Layer extraLayer : drawing.getExtraLayers()) {
+						if (extraLayer.isActive() && indexedLayerNames.contains(extraLayer.getName())) {
+							result.add(drawing);
+						}
 					}
 				}
 				return result.build();
