@@ -103,10 +103,12 @@ public class ProjectGenerator {
 				value = "";
 			} else {
 				value = defaultVariableConfig.getValue();
-				try {
-					Double.parseDouble(value);
-				} catch (NumberFormatException nfe) {
-					throw new IllegalArgumentException("Variable '" + defaultVariableConfig.getName() + "' has a value '" + value + "' that is not a well formed double");
+				if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
+					try {
+						Double.parseDouble(value);
+					} catch (NumberFormatException nfe) {
+						throw new IllegalArgumentException("Variable '" + defaultVariableConfig.getName() + "' has a value '" + value + "' that is not a well formed double");
+					}
 				}
 			}
 			this.customVariables.put(defaultVariableConfig.getName(), value);
