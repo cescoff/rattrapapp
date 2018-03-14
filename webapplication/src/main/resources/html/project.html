@@ -131,7 +131,7 @@
 												</label>
 											</div>
 											<div class="form-group" ng-repeat="parameter in project.parameters">
-												<input ng-model="parameter.value" type="text" class="form-control">
+												<input ng-model="parameter.value" type="{{parameter.type}}" class="form-control">
 												<label>{{parameter.displayname}}</label>
 												<p class="help-block">{{parameter.description}}</p>
 											</div>
@@ -143,7 +143,6 @@
 								</div>
 							</div>
 						</div>
-						
 					</div>
 				</section>
 

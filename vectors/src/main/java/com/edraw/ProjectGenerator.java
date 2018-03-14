@@ -1,7 +1,5 @@
 package com.edraw;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
@@ -22,11 +20,9 @@ import com.edraw.impl.StringResource;
 import com.edraw.impl.URLResource;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.rattrap.utils.JAXBUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 
@@ -188,6 +184,19 @@ public class ProjectGenerator {
 			}
 		}
 		return null;
+	}
+
+	public String getVariableType(final String varName) {
+		for (final DefaultVariableConfig defaultVariableConfig : this.config.getDefaultVariablesValues()) {
+			if (defaultVariableConfig.getName().equals(varName)) {
+				if (defaultVariableConfig.getVariableType() != null) {
+					return defaultVariableConfig.getVariableType().getDisplayName();
+				} else {
+					return VariableType.NUMERIC.getDisplayName();
+				}
+			}
+		}
+		return VariableType.NUMERIC.getDisplayName();
 	}
 
 	public String getVariableDescription(final String varName, final Locale language) {

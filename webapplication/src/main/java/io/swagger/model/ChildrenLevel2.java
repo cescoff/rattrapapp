@@ -5,13 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * ChildrenLevel2
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class ChildrenLevel2   {
   @JsonProperty("name")
@@ -25,7 +27,7 @@ public class ChildrenLevel2   {
     return this;
   }
 
-   /**
+  /**
    * Classification name level 2
    * @return name
   **/
@@ -45,7 +47,7 @@ public class ChildrenLevel2   {
     return this;
   }
 
-   /**
+  /**
    * The classification hit count
    * @return count
   **/

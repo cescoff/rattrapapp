@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.Classification;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -15,7 +16,8 @@ import javax.validation.constraints.*;
  * A quick project summary
  */
 @ApiModel(description = "A quick project summary")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class ProjectSummary   {
   @JsonProperty("id")
@@ -31,6 +33,7 @@ public class ProjectSummary   {
   private String thumbnailurl = null;
 
   @JsonProperty("classification")
+  @Valid
   private List<Classification> classification = null;
 
   public ProjectSummary id(String id) {
@@ -38,7 +41,7 @@ public class ProjectSummary   {
     return this;
   }
 
-   /**
+  /**
    * The id of the Project
    * @return id
   **/
@@ -58,7 +61,7 @@ public class ProjectSummary   {
     return this;
   }
 
-   /**
+  /**
    * The title of the project
    * @return title
   **/
@@ -78,7 +81,7 @@ public class ProjectSummary   {
     return this;
   }
 
-   /**
+  /**
    * The project description
    * @return description
   **/
@@ -98,7 +101,7 @@ public class ProjectSummary   {
     return this;
   }
 
-   /**
+  /**
    * The URL of the thumbnail
    * @return thumbnailurl
   **/
@@ -126,7 +129,7 @@ public class ProjectSummary   {
     return this;
   }
 
-   /**
+  /**
    * All classifications to which project belongs
    * @return classification
   **/

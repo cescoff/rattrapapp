@@ -53,7 +53,12 @@ public class SwaggerUtils {
                 result.parameters(Lists.newArrayList(Iterables.transform(projectGenerator.getVariables().entrySet(), new Function<Map.Entry<String, String>, ProjectParameter>() {
                     @Override
                     public ProjectParameter apply(Map.Entry<String, String> stringStringEntry) {
-                        return new ProjectParameter().name(stringStringEntry.getKey()).value(stringStringEntry.getValue()).displayname(projectGenerator.getVariableDisplayName(stringStringEntry.getKey(), Locale.US)).description(projectGenerator.getVariableDescription(stringStringEntry.getKey(), Locale.US));
+                        return new ProjectParameter().
+                                name(stringStringEntry.getKey()).
+                                value(stringStringEntry.getValue()).
+                                displayname(projectGenerator.getVariableDisplayName(stringStringEntry.getKey(), Locale.US)).
+                                description(projectGenerator.getVariableDescription(stringStringEntry.getKey(), Locale.US)).
+                                type(projectGenerator.getVariableType(stringStringEntry.getKey()));
                     }
                 })));
                 return result;

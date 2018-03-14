@@ -1,9 +1,9 @@
 package com.edraw.config.laser;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import com.google.common.collect.Lists;
+
+import javax.xml.bind.annotation.*;
+import java.util.Collection;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlSeeAlso(value = {LaserCircle.class, LaserRectangle.class, LaserPath.class, LaserPoint.class, LaserCrenel.class, LaserHinge.class, LaserText.class})
@@ -17,7 +17,10 @@ public class LaserDrawing {
 
 	@XmlAttribute(name = "display-name")
 	private String displayName;
-	
+
+	@XmlElementWrapper(name = "extra-layers") @XmlElement(name = "layer")
+	private Collection<LaserLayer> extraLayers = Lists.newArrayList();
+
 	public LaserDrawing() {
 		super();
 	}
@@ -39,5 +42,7 @@ public class LaserDrawing {
 	public String getDisplayName() {
 		return displayName;
 	}
+
+	public Collection<LaserLayer> getExtraLayers() { return extraLayers; }
 
 }

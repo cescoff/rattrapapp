@@ -8,13 +8,15 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ChildrenLevel2;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * ChildrenLevel1
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class ChildrenLevel1   {
   @JsonProperty("name")
@@ -24,6 +26,7 @@ public class ChildrenLevel1   {
   private Integer count = null;
 
   @JsonProperty("children")
+  @Valid
   private List<ChildrenLevel2> children = null;
 
   public ChildrenLevel1 name(String name) {
@@ -31,7 +34,7 @@ public class ChildrenLevel1   {
     return this;
   }
 
-   /**
+  /**
    * Classification name level 1
    * @return name
   **/
@@ -51,7 +54,7 @@ public class ChildrenLevel1   {
     return this;
   }
 
-   /**
+  /**
    * The classification hit count
    * @return count
   **/
@@ -79,7 +82,7 @@ public class ChildrenLevel1   {
     return this;
   }
 
-   /**
+  /**
    * All children classification items. Recursive model
    * @return children
   **/

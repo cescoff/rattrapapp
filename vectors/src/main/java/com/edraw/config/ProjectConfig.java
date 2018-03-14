@@ -3,14 +3,9 @@ package com.edraw.config;
 import java.util.Collection;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.*;
 
+import com.edraw.VariableType;
 import com.google.common.collect.Lists;
 import com.rattrap.utils.JAXBUtils;
 
@@ -139,6 +134,9 @@ public class ProjectConfig {
 		@XmlAttribute
 		private String description;
 
+		@XmlAttribute(name =  "type")
+		private VariableType variableType;
+
 		@XmlValue
 		private String value;
 
@@ -172,6 +170,9 @@ public class ProjectConfig {
 		public String getDescription() {
 			return description;
 		}
+
+		public VariableType getVariableType() { return variableType; }
+
 	}
 
 	public static void main(String[] args) throws JAXBException {

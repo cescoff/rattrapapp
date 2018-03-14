@@ -6,8 +6,10 @@ public interface Drawing {
 
 	public String getName();
 	
-	public String getLayer();
-	
+	public Layer getLayer();
+
+	public Iterable<Layer> getExtraLayers();
+
 	public Position getCenter();
 	
 	public Rectangle getBoundingRectangle();

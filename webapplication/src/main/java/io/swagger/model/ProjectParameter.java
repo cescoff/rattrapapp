@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -12,7 +13,8 @@ import javax.validation.constraints.*;
  * A dynamic project parameter
  */
 @ApiModel(description = "A dynamic project parameter")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class ProjectParameter   {
   @JsonProperty("name")
@@ -27,12 +29,15 @@ public class ProjectParameter   {
   @JsonProperty("value")
   private String value = null;
 
+  @JsonProperty("type")
+  private String type = null;
+
   public ProjectParameter name(String name) {
     this.name = name;
     return this;
   }
 
-   /**
+  /**
    * The technical name of the parameter
    * @return name
   **/
@@ -52,7 +57,7 @@ public class ProjectParameter   {
     return this;
   }
 
-   /**
+  /**
    * The display name of the parameter
    * @return displayname
   **/
@@ -72,7 +77,7 @@ public class ProjectParameter   {
     return this;
   }
 
-   /**
+  /**
    * The description of the parameter
    * @return description
   **/
@@ -92,7 +97,7 @@ public class ProjectParameter   {
     return this;
   }
 
-   /**
+  /**
    * The value of the parameter
    * @return value
   **/
@@ -105,6 +110,26 @@ public class ProjectParameter   {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  public ProjectParameter type(String type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * The type of the variable (NUMERIC / BOOLEAN)
+   * @return type
+  **/
+  @ApiModelProperty(value = "The type of the variable (NUMERIC / BOOLEAN)")
+
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
 
@@ -120,12 +145,13 @@ public class ProjectParameter   {
     return Objects.equals(this.name, projectParameter.name) &&
         Objects.equals(this.displayname, projectParameter.displayname) &&
         Objects.equals(this.description, projectParameter.description) &&
-        Objects.equals(this.value, projectParameter.value);
+        Objects.equals(this.value, projectParameter.value) &&
+        Objects.equals(this.type, projectParameter.type);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, displayname, description, value);
+    return Objects.hash(name, displayname, description, value, type);
   }
 
   @Override
@@ -137,6 +163,7 @@ public class ProjectParameter   {
     sb.append("    displayname: ").append(toIndentedString(displayname)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("}");
     return sb.toString();
   }

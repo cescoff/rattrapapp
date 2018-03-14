@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -12,7 +13,8 @@ import javax.validation.constraints.*;
  * Error result
  */
 @ApiModel(description = "Error result")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class Error   {
   @JsonProperty("message")
@@ -26,7 +28,7 @@ public class Error   {
     return this;
   }
 
-   /**
+  /**
    * Get message
    * @return message
   **/
@@ -46,7 +48,7 @@ public class Error   {
     return this;
   }
 
-   /**
+  /**
    * Get context
    * @return context
   **/

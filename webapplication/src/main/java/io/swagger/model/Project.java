@@ -10,6 +10,7 @@ import io.swagger.model.PreviewRenderingRef;
 import io.swagger.model.ProjectParameter;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -17,7 +18,8 @@ import javax.validation.constraints.*;
  * Project details
  */
 @ApiModel(description = "Project details")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class Project   {
   @JsonProperty("title")
@@ -33,12 +35,15 @@ public class Project   {
   private String thumbnailurl = null;
 
   @JsonProperty("previews")
+  @Valid
   private List<PreviewRenderingRef> previews = null;
 
   @JsonProperty("classification")
+  @Valid
   private List<Classification> classification = null;
 
   @JsonProperty("parameters")
+  @Valid
   private List<ProjectParameter> parameters = null;
 
   public Project title(String title) {
@@ -46,7 +51,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * The title of the project
    * @return title
   **/
@@ -66,7 +71,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * The project description
    * @return description
   **/
@@ -86,7 +91,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * The project presentation
    * @return presentation
   **/
@@ -106,7 +111,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * The URL of the thumbnail
    * @return thumbnailurl
   **/
@@ -134,7 +139,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * The information required to render a preview
    * @return previews
   **/
@@ -163,7 +168,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * All classifications to which project belongs
    * @return classification
   **/
@@ -192,7 +197,7 @@ public class Project   {
     return this;
   }
 
-   /**
+  /**
    * All dynamic parameters in the project
    * @return parameters
   **/

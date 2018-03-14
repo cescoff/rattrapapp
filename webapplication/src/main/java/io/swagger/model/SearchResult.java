@@ -9,19 +9,23 @@ import io.swagger.model.Classification;
 import io.swagger.model.ProjectSummary;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * SearchResult
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class SearchResult   {
   @JsonProperty("projects")
+  @Valid
   private List<ProjectSummary> projects = null;
 
   @JsonProperty("facecting")
+  @Valid
   private List<Classification> facecting = null;
 
   public SearchResult projects(List<ProjectSummary> projects) {
@@ -37,7 +41,7 @@ public class SearchResult   {
     return this;
   }
 
-   /**
+  /**
    * Get projects
    * @return projects
   **/
@@ -66,7 +70,7 @@ public class SearchResult   {
     return this;
   }
 
-   /**
+  /**
    * Get facecting
    * @return facecting
   **/

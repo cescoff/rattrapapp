@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -14,7 +15,8 @@ import javax.validation.constraints.*;
  * The project basic parameters
  */
 @ApiModel(description = "The project basic parameters")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class ProjectGenerator   {
   @JsonProperty("name")
@@ -36,6 +38,7 @@ public class ProjectGenerator   {
   private String previewurl = null;
 
   @JsonProperty("variablenames")
+  @Valid
   private List<String> variablenames = null;
 
   @JsonProperty("value")
@@ -46,7 +49,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The display name of the project
    * @return name
   **/
@@ -66,7 +69,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The name of the repository
    * @return reponame
   **/
@@ -86,7 +89,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The URL name of the project
    * @return urlname
   **/
@@ -106,7 +109,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The description of the parameter
    * @return description
   **/
@@ -126,7 +129,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The presentation of the project
    * @return presentation
   **/
@@ -146,7 +149,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The URL of the sample preview image
    * @return previewurl
   **/
@@ -174,7 +177,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The names of the project variables
    * @return variablenames
   **/
@@ -194,7 +197,7 @@ public class ProjectGenerator   {
     return this;
   }
 
-   /**
+  /**
    * The value of the parameter
    * @return value
   **/

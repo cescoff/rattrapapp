@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ChildrenLevel1;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -15,7 +16,8 @@ import javax.validation.constraints.*;
  * The project classification
  */
 @ApiModel(description = "The project classification")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class Classification   {
   @JsonProperty("name")
@@ -25,6 +27,7 @@ public class Classification   {
   private Integer count = null;
 
   @JsonProperty("children")
+  @Valid
   private List<ChildrenLevel1> children = null;
 
   public Classification name(String name) {
@@ -32,7 +35,7 @@ public class Classification   {
     return this;
   }
 
-   /**
+  /**
    * Classification name
    * @return name
   **/
@@ -52,7 +55,7 @@ public class Classification   {
     return this;
   }
 
-   /**
+  /**
    * The classification hit count
    * @return count
   **/
@@ -80,7 +83,7 @@ public class Classification   {
     return this;
   }
 
-   /**
+  /**
    * All children classification items. Recursive model
    * @return children
   **/

@@ -8,7 +8,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.edraw.VariableType;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 @XmlRootElement(name = "variables")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -45,16 +47,19 @@ public class Variables {
 		private String name;
 		
 		@XmlAttribute
-		private double value;
+		private String value;
 
-		@XmlAttribute
+		@XmlAttribute(name = "type")
+		private VariableType variableType = VariableType.NUMERIC;
+
+		@XmlAttribute(name = "type")
 		private boolean print = false;
 		
 		public VariableDefinition() {
 			super();
 		}
 
-		public VariableDefinition(String name, double value) {
+		public VariableDefinition(String name, String value) {
 			super();
 			this.name = name;
 			this.value = value;
@@ -64,18 +69,46 @@ public class Variables {
 			return name;
 		}
 
-		public double getValue() {
+		public String getValue() {
 			return value;
-		}
-
-		public void setValue(double value) {
-			this.value = value;
 		}
 
 		public boolean isPrint() {
 			return print;
 		}
-	
+
+		public VariableType getVariableType() { return variableType; }
+
+		public double getDouble() {
+			if (StringUtils.isEmpty(value)) {
+				throw new IllegalStateException("No value defined for variable '" + name + "'");
+			}
+			if (variableType == null || variableType == VariableType.NUMERIC) {
+				try {
+					return Double.parseDouble(value);
+				} catch (NumberFormatException nfe) {
+					throw new IllegalArgumentException("Variable '" + name + "' with type '" + variableType + "' and value '" + value + "' is not a valid numeric");
+				}
+			}
+			throw new IllegalArgumentException("Variable '" + name + "' with type '" + variableType + "' and value '" + value + "' is not a valid numeric");
+		}
+
+		public boolean getBoolean() {
+			if (StringUtils.isEmpty(value)) {
+				throw new IllegalStateException("No value defined for variable '" + name + "'");
+			}
+			if (variableType == null || variableType == VariableType.BOOLEAN) {
+				if ("true".equalsIgnoreCase(value)) {
+					return true;
+				} else if ("false".equalsIgnoreCase(value)) {
+					return false;
+				} else {
+					throw new IllegalArgumentException("Variable '" + name + "' with type '" + variableType + "' and value '" + value + "' is not a valid boolean");
+				}
+			}
+			throw new IllegalArgumentException("Variable '" + name + "' with type '" + variableType + "' and value '" + value + "' is not a valid boolean");
+		}
+
 	}
 	
 	public static class ExpressionDefinition {
@@ -85,6 +118,9 @@ public class Variables {
 		
 		@XmlAttribute
 		private String expression;
+
+		@XmlAttribute(name = "type")
+		private VariableType variableType = VariableType.NUMERIC;
 
 		@XmlAttribute
 		private boolean print = false;
@@ -110,7 +146,8 @@ public class Variables {
 		public boolean isPrint() {
 			return print;
 		}
-		
+
+		public VariableType getVariableType() { return variableType; }
 	}
 	
 	public static class ValidationAssertion {

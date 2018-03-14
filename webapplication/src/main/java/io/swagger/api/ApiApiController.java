@@ -145,7 +145,7 @@ public class ApiApiController implements ApiApi {
 
         final Iterable<com.edraw.Resource> renderedFiles;
         try {
-            renderedFiles = projectGenerator.generateProject(parameters.build(), body.getEnableSplitters() != null && !body.getEnableSplitters());
+            renderedFiles = projectGenerator.generateProject(parameters.build(), body.isEnableSplitters() != null && !body.isEnableSplitters());
         } catch (ValidationError v) {
             logger.error("Failed to zip dynamic preview on project with id '" + body.getProjectid() + "'", v);
             final MultiValueMap<String, String> headers = new LinkedMultiValueMap();

@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.model.ProjectParameter;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -16,7 +17,8 @@ import javax.validation.constraints.*;
  * Reference to a given preview
  */
 @ApiModel(description = "Reference to a given preview")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-02T16:06:11.495Z")
+@Validated
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-14T08:37:40.478Z")
 
 public class PreviewRenderingRef   {
   @JsonProperty("projectid")
@@ -77,6 +79,7 @@ public class PreviewRenderingRef   {
   private Boolean enableSplitters = null;
 
   @JsonProperty("parameters")
+  @Valid
   private List<ProjectParameter> parameters = null;
 
   public PreviewRenderingRef projectid(String projectid) {
@@ -84,7 +87,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * The Id of the project
    * @return projectid
   **/
@@ -104,7 +107,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * An image full URL for ex.
    * @return url
   **/
@@ -124,7 +127,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * Format type of preview e.g. SVG, IMG, YOUTUBE VIDEO...
    * @return outputformat
   **/
@@ -144,7 +147,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * The name of the output in the outputConfig.xml file
    * @return name
   **/
@@ -164,7 +167,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * The output format of the preview e.g. SVG
    * @return format
   **/
@@ -184,7 +187,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * Width of the output preview
    * @return width
   **/
@@ -204,7 +207,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * Height of the output preview
    * @return height
   **/
@@ -224,14 +227,14 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * If set to false the output splitters will not be applied
    * @return enableSplitters
   **/
   @ApiModelProperty(value = "If set to false the output splitters will not be applied")
 
 
-  public Boolean getEnableSplitters() {
+  public Boolean isEnableSplitters() {
     return enableSplitters;
   }
 
@@ -252,7 +255,7 @@ public class PreviewRenderingRef   {
     return this;
   }
 
-   /**
+  /**
    * All dynamic parameters in the project
    * @return parameters
   **/

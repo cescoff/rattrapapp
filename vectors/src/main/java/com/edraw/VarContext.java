@@ -2,6 +2,6 @@ package com.edraw;
 
 public interface VarContext {
 
-	public double evaluate(final String expression) throws Exception;
-	
+	public <T> T evaluate(final String expression, Class<T> dataType) throws Exception;
+
 }
