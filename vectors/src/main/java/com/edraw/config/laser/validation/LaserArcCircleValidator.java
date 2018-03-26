@@ -43,7 +43,7 @@ public class LaserArcCircleValidator implements LaserValidator<LaserArcCircle> {
             }
         }
 
-        return null;
+        return result.build();
     }
 
     private Iterable<ValidationMessage> getPointValidationMessages(final LaserPoint point, final String name) {

@@ -398,7 +398,7 @@ public abstract class GeometryUtils {
 		throw new IllegalStateException("No implemented");
 	}
 
-	public static double getVectorProduct(final Vector vector1, final Vector vector2) {
+	public static double getVectorDotProduct(final Vector vector1, final Vector vector2) {
 		return (vector1.getPoint2().getX() - vector1.getPoint1().getX()) * (vector2.getPoint2().getX() - vector2.getPoint1().getX())
 				+ (vector1.getPoint2().getY() - vector1.getPoint1().getY()) * (vector2.getPoint2().getY() - vector2.getPoint1().getY());
 	}
@@ -413,7 +413,10 @@ public abstract class GeometryUtils {
 		if (!getIntersection(vector1, vector2, false).isPresent()) {
 			return 0;
 		}
-		return Math.acos(getVectorProduct(vector1, vector2) / (vector1.getLength().getDistance() * vector2.getLength().getDistance()));
+		final double dotProduct = getVectorDotProduct(vector1, vector2);
+		final double distances = vector1.getLength().getDistance() * vector2.getLength().getDistance();
+		final double cosine = dotProduct / distances;
+		return Math.acos(cosine);
 	}
 
 }

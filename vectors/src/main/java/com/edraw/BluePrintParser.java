@@ -364,7 +364,7 @@ public class BluePrintParser {
 	}
 
 	private <L extends LaserDrawing> Optional<LaserDrawingParser<L>> getParser(final L laserDrawing) {
-		final String classSignature = new StringBuilder(laserDrawing.getClass().getPackage().getName()).append(".parser").append(laserDrawing.getClass().getName()).append("Parser").toString();
+		final String classSignature = new StringBuilder(laserDrawing.getClass().getPackage().getName()).append(".parser.").append(laserDrawing.getClass().getSimpleName()).append("Parser").toString();
 		final Class<LaserDrawingParser> resultingClass;
 		try {
 			resultingClass = (Class<LaserDrawingParser>) Class.forName(classSignature);
@@ -383,12 +383,20 @@ public class BluePrintParser {
 
 	private BluePrintContext getContext() {
 		return new BluePrintContext() {
-			@Override
-			public Position resolvePosition(String name, PositionType type) {
-				return positionContext.getPosition(name, type);
-			}
 
-			@Override
+		    @Override
+            public Optional<Position> resolvePosition(LaserPoint point) {
+                final Optional<Quartet<String, PositionType, Double, DistanceUnit>> startXRelative = parseRelativePosition(point.getX());
+                final Optional<Quartet<String, PositionType, Double, DistanceUnit>> startYRelative = parseRelativePosition(point.getY());
+
+                if (!startXRelative.isPresent() || !startXRelative.isPresent()) {
+                    return Optional.absent();
+                }
+
+                return Optional.of(getPosition(startXRelative, startYRelative, point.getX(), point.getY()));
+            }
+
+            @Override
 			public void registerPoint(LaserDrawing drawing, Position position) {
 				positionContext.registerPoint(drawing.getName(), drawing.getLayer(), position);
 			}
