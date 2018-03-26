@@ -4,6 +4,7 @@ import com.edraw.config.Distance;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.config.laser.*;
+import com.edraw.config.laser.parser.LaserDrawingParser;
 import com.edraw.geom.*;
 import com.edraw.impl.BluePrintUtils;
 import com.edraw.impl.EmptyRectangle;
@@ -46,39 +47,49 @@ public class BluePrintParser {
 
 	public BluePrint parse(final LaserBluePrint laserBluePrint) {
 		this.defaultDistanceUnit = DistanceUnit.readStringValue(laserBluePrint.getDistanceUnit());
-		
+
 		final List<Drawing> drawings = Lists.newArrayList();
 		
 		for (final LaserDrawing laserDrawing : laserBluePrint.getDrawings()) {
-			try {
-				registerPoint(laserDrawing);
-				final Optional<Rectangle> rectangle = parseRectangle(laserDrawing);
-				if (rectangle.isPresent()) {
-					drawings.add(rectangle.get());
-				} else {
-					final Optional<Circle> circle = parseCircle(laserDrawing);
-					if (circle.isPresent()) {
-						drawings.add(circle.get());
-					} else {
-						final Optional<Path> path = parsePath(laserDrawing);
-						if (path.isPresent()) {
-							drawings.add(path.get());
-						} else {
-							final Optional<Path> crenel = parseCrenel(laserDrawing);
-							if (crenel.isPresent()) {
-								drawings.add(crenel.get());
-							} else {
-								final Optional<Text> text = parseText(laserDrawing);
-								if (text.isPresent()) {
-									drawings.add(text.get());
-								}
-							}
-						}
-					}
-				}
-			} catch (Throwable t) {
-				throw new IllegalStateException("Cannot parse drawing named '" + laserDrawing.getName() + "' in layer '" + laserDrawing.getLayer() + "'", t);
-			}
+		    final Optional<LaserDrawingParser<LaserDrawing>> parserOptional = getParser(laserDrawing);
+
+		    if (parserOptional.isPresent()) {
+                try {
+		            drawings.add(parserOptional.get().handle(laserDrawing, getContext()));
+                } catch (Throwable t) {
+                    throw new IllegalStateException("Cannot parse drawing named '" + laserDrawing.getName() + "' in layer '" + laserDrawing.getLayer() + "'", t);
+                }
+            } else {
+                try {
+                    registerPoint(laserDrawing);
+                    final Optional<Rectangle> rectangle = parseRectangle(laserDrawing);
+                    if (rectangle.isPresent()) {
+                        drawings.add(rectangle.get());
+                    } else {
+                        final Optional<Circle> circle = parseCircle(laserDrawing);
+                        if (circle.isPresent()) {
+                            drawings.add(circle.get());
+                        } else {
+                            final Optional<Path> path = parsePath(laserDrawing);
+                            if (path.isPresent()) {
+                                drawings.add(path.get());
+                            } else {
+                                final Optional<Path> crenel = parseCrenel(laserDrawing);
+                                if (crenel.isPresent()) {
+                                    drawings.add(crenel.get());
+                                } else {
+                                    final Optional<Text> text = parseText(laserDrawing);
+                                    if (text.isPresent()) {
+                                        drawings.add(text.get());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable t) {
+                    throw new IllegalStateException("Cannot parse drawing named '" + laserDrawing.getName() + "' in layer '" + laserDrawing.getLayer() + "'", t);
+                }
+            }
 		}
 		
 		final Iterable<Position> allPositions = BluePrintUtils.getAllPositions(drawings);
@@ -351,7 +362,78 @@ public class BluePrintParser {
 		}
 		return new RelativePosition(positionContext, relativeFromSpecificPointX, relativeFromSpecificPointY, relativeFromDrawingX, relativeFromDrawingY, distanceX, distanceY, xExact, yExact, unit);
 	}
-	
+
+	private <L extends LaserDrawing> Optional<LaserDrawingParser<L>> getParser(final L laserDrawing) {
+		final String classSignature = new StringBuilder(laserDrawing.getClass().getPackage().getName()).append(".parser").append(laserDrawing.getClass().getName()).append("Parser").toString();
+		final Class<LaserDrawingParser> resultingClass;
+		try {
+			resultingClass = (Class<LaserDrawingParser>) Class.forName(classSignature);
+		} catch (Throwable t) {
+			logger.info("No parser class of type '" + classSignature + "' found");
+			return Optional.absent();
+		}
+		final LaserDrawingParser<L> result;
+		try {
+			result = resultingClass.newInstance();
+		} catch (Throwable t) {
+			throw new IllegalStateException("Cannot instanciate parser class '" + classSignature + "'", t);
+		}
+		return Optional.of(result);
+	}
+
+	private BluePrintContext getContext() {
+		return new BluePrintContext() {
+			@Override
+			public Position resolvePosition(String name, PositionType type) {
+				return positionContext.getPosition(name, type);
+			}
+
+			@Override
+			public void registerPoint(LaserDrawing drawing, Position position) {
+				positionContext.registerPoint(drawing.getName(), drawing.getLayer(), position);
+			}
+
+			@Override
+			public Text registerText(LaserDrawing drawing, String layer, Position center, String text, int size, DistanceUnit distanceUnit, LaserAction action) {
+				return positionContext.registerText(drawing.getName(), drawing.getLayer(), center, text, size, distanceUnit, action);
+			}
+
+			@Override
+			public Path registerPath(LaserDrawing drawing, Iterable<Position> points, LaserAction borderAction) {
+				return positionContext.registerPath(drawing.getName(), drawing.getLayer(), getActiveLayers(drawing), points, getDistanceUnit(), borderAction);
+			}
+
+			@Override
+			public Circle registerCircle(LaserDrawing drawing, Position center, Distance radius, LaserAction borderAction) {
+				return positionContext.registerCircle(drawing.getName(), drawing.getLayer(), getActiveLayers(drawing), center, radius, borderAction);
+			}
+
+			@Override
+			public <T> T evaluate(String expression, Class<T> dataType) throws Exception {
+				return varContext.evaluate(expression, dataType);
+			}
+
+			@Override
+			public String print(String expression) throws Exception {
+				return varContext.print(expression);
+			}
+
+			@Override
+			public DistanceUnit getDistanceUnit() {
+				return defaultDistanceUnit;
+			}
+
+			private Iterable<String> getActiveLayers(final LaserDrawing drawing) {
+				final Iterable<String> extraActiveLayers;
+				if (drawing != null) {
+					return Iterables.transform(Iterables.filter(drawing.getExtraLayers(), GetActiveLayer(drawing.getName())), LASER_LAYER_TO_STRING);
+				} else {
+					return Collections.emptyList();
+				}
+			}
+		};
+	}
+
 	private Optional<Quartet<String, PositionType, Double, DistanceUnit>> parseRelativePosition(final String value) {
 		final Matcher valueMatcher = RELATIVE_POSTION_PATTERN.matcher(value);
 		if (!valueMatcher.find()) {
@@ -406,10 +488,10 @@ public class BluePrintParser {
 			this.yExact = yExact;
 			this.unit = unit;
 			if (xExact < 0 && relativeFromDrawingX == null) {
-				throw new IllegalStateException("Cannot create a relative position from any positions on X");
+				throw new IllegalStateException("Cannot create a relative position from any positions on X or X value is negative");
 			}
 			if (yExact < 0 && relativeFromDrawingY == null) {
-				throw new IllegalStateException("Cannot create a relative position from any positions on Y");
+				throw new IllegalStateException("Cannot create a relative position from any positions on Y or Y value is negative");
 			}
 		}
 
@@ -540,56 +622,6 @@ public class BluePrintParser {
 
 		public DistanceUnit getUnit() {
 			return distanceUnit;
-		}
-		
-	}
- 	
-	private enum DrawingType {
-		POINT,
-		PATH,
-		CIRCLE,
-		RECTANGLE,
-		TEXT
-	}
-	
-	private enum PositionType {
-		CENTER("Center", DrawingType.CIRCLE, DrawingType.RECTANGLE, DrawingType.POINT),
-		TOP_LEFT("TopLeft", DrawingType.RECTANGLE),
-		TOP_RIGHT("TopRight", DrawingType.RECTANGLE),
-		BOTTOM_LEFT("BottomLeft", DrawingType.RECTANGLE),
-		BOTTOM_RIGHT("BottomRight", DrawingType.RECTANGLE),
-		RADIUS_TOP("RadiusTop", DrawingType.CIRCLE),
-		RADIUS_BOTTOM("RadiusBottom", DrawingType.CIRCLE),
-		RADIUS_LEFT("RadiusLeft", DrawingType.CIRCLE),
-		RADIUS_RIGHT("RadiusRight", DrawingType.CIRCLE);
-		
-		private final String varName;
-		
-		private final Set<DrawingType> supportedDrawings;
-		
-		private PositionType(String varName, DrawingType...supportedDrawings) {
-			this.varName = varName;
-			if (supportedDrawings == null) {
-				this.supportedDrawings = Collections.emptySet();
-			} else {
-				this.supportedDrawings = Sets.newHashSet(supportedDrawings);
-			}
-		}
-		
-		private static PositionType parse(final String value) {
-			for (final PositionType positionType : PositionType.values()) {
-				if (value.equals(positionType.varName)) {
-					return positionType;
-				}
-			}
-			throw new IllegalArgumentException("Unknown position type '" + value + "'");
-		}
-		
-		private boolean accept(final DrawingType drawingType) {
-			if (supportedDrawings.size() == 0) {
-				return true;
-			}
-			return supportedDrawings.contains(drawingType);
 		}
 		
 	}
@@ -1116,35 +1148,35 @@ public class BluePrintParser {
 		}
 		
 	}
-	
+
 	private static class PositionContext {
-		
+
 		private final Map<String, DrawingType> drawingTypes = Maps.newHashMap();
-		
+
 		private final Map<String, Position> centers = Maps.newHashMap();
-		
+
 		private final Map<String, Position> topLefts = Maps.newHashMap();
-		
+
 		private final Map<String, Position> topRights = Maps.newHashMap();
 
 		private final Map<String, Position> bottomLefts = Maps.newHashMap();
-		
+
 		private final Map<String, Position> bottomRights = Maps.newHashMap();
-		
+
 		private final Map<String, Position> radiusTops = Maps.newHashMap();
-		
+
 		private final Map<String, Position> radiusBottoms = Maps.newHashMap();
-		
+
 		private final Map<String, Position> radiusLefts = Maps.newHashMap();
-		
+
 		private final Map<String, Position> radiusRights = Maps.newHashMap();
 
 		private Position getPosition(final String name, final PositionType positionType) {
 			if (!drawingTypes.containsKey(name)) {
-				throw new IllegalStateException("Unknown drawing named '" + name + "' cannot fetch position of type '" + positionType.varName + "'");
+				throw new IllegalStateException("Unknown drawing named '" + name + "' cannot fetch position of type '" + positionType.getVarName() + "'");
 			}
 			if (!positionType.accept(this.drawingTypes.get(name))) {
-				throw new IllegalStateException("Position '" + positionType.varName + "' is not supported by drawing of type '" + drawingTypes.get(name) + "'");
+				throw new IllegalStateException("Position '" + positionType.getVarName() + "' is not supported by drawing of type '" + drawingTypes.get(name) + "'");
 			}
 			switch (positionType) {
 			case CENTER:
@@ -1202,10 +1234,10 @@ public class BluePrintParser {
 				return radiusRights.get(name);
 
 			default:
-				throw new IllegalArgumentException("Unsupported position type '" + positionType.varName + "'");
+				throw new IllegalArgumentException("Unsupported position type '" + positionType.getVarName() + "'");
 			}
 		}
-		
+
 		private void registerPoint(final String name, final String layer, final Position position) {
 			if (drawingTypes.containsKey(name)) {
 				throw new IllegalStateException("A drawing of type '" + drawingTypes.get(name) + "' has already been defined with name '" + name + "' cannot declare a circle with the same name");
@@ -1214,7 +1246,7 @@ public class BluePrintParser {
 			centers.put(name, position);
 			logger.info("Point '" + name + "/" + layer + "' has been registered");
 		}
-		
+
 		private Text registerText(final String name, final String layer, final Position center, final String text, final int size, final DistanceUnit distanceUnit, final LaserAction action) {
 			if (drawingTypes.containsKey(name)) {
 				throw new IllegalStateException("A drawing of type '" + drawingTypes.get(name) + "' has already been defined with name '" + name + "' cannot declare a circle with the same name");
@@ -1222,17 +1254,17 @@ public class BluePrintParser {
 
 			drawingTypes.put(name, DrawingType.PATH);
 			centers.put(name, center);
-			
+
 			return new Text() {
-				
+
 				public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
 					return Collections.emptyList();
 				}
-				
+
 				public String getName() {
 					return name;
 				}
-				
+
 				public Layer getLayer() {
 					return new Layer() {
 						@Override
@@ -1255,19 +1287,19 @@ public class BluePrintParser {
 				public Position getCenter() {
 					return center;
 				}
-				
+
 				public Rectangle getBoundingRectangle() {
 					return new EmptyRectangle(center);
 				}
-				
+
 				public String getText() {
 					return text;
 				}
-				
+
 				public int getSize() {
 					return size;
 				}
-				
+
 				public LaserAction getAction() {
 					return action;
 				}
@@ -1277,7 +1309,7 @@ public class BluePrintParser {
 				}
 			};
 		}
-		
+
 		private Path registerPath(final String name, final String layer, final Iterable<String> extraActiveLayers, final Iterable<Position> points, final DistanceUnit distanceUnit, final LaserAction borderAction) {
 			if (points == null || Iterables.isEmpty(points)) {
 				throw new IllegalArgumentException("Cannot register a path without points");
@@ -1290,13 +1322,13 @@ public class BluePrintParser {
 			centers.put(name, center);
 
 			logger.info("Path '" + name + "/" + layer + "' has been registered");
-			
+
 			return new Path() {
-				
+
 				public String getName() {
 					return name;
 				}
-				
+
 				public Layer getLayer() {
 					return TO_ACTIVE_BLUEPRINT_LAYER.apply(layer);
 				}
@@ -1309,14 +1341,14 @@ public class BluePrintParser {
 				public Position getCenter() {
 					return center;
 				}
-				
+
 				public Rectangle getBoundingRectangle() {
 					double minX = 0.0;
 					double minY = 0.0;
-					
+
 					double maxX = -1.0;
 					double maxY = -1.0;
-					
+
 					for (final Position position : points) {
 						// MIN
 						if (position.getX() < minX) {
@@ -1339,7 +1371,7 @@ public class BluePrintParser {
 							maxY = position.getY();
 						}
 					}
-					
+
 					final double width = Math.abs(maxX - minX);
 					final double height = Math.abs(maxY - minY);
 
@@ -1347,21 +1379,21 @@ public class BluePrintParser {
 					final Position topRight = new RelativePosition(null, null, null, null, null, 0, 0, maxX, minY, distanceUnit);
 					final Position bottomLeft = new RelativePosition(null, null, null, null, null, 0, 0, minX, maxY, distanceUnit);
 					final Position bottomRight = new RelativePosition(null, null, null, null, null, 0, 0, maxX, maxY, distanceUnit);
-					
+
 					return new BoundingRectangle(center, topLeft, topRight, bottomLeft, bottomRight, width, height, name, layer, distanceUnit);
-					
+
 				}
-				
+
 				public Iterable<Point> getPoints() {
 					return Iterables.transform(points, new Function<Position, Point>() {
 
 						public Point apply(final Position position) {
 							return new Point() {
-								
+
 								public String getName() {
 									return null;
 								}
-								
+
 								public Layer getLayer() {
 									return TO_ACTIVE_BLUEPRINT_LAYER.apply(layer);
 								}
@@ -1374,7 +1406,7 @@ public class BluePrintParser {
 								public Position getCenter() {
 									return position;
 								}
-								
+
 								public Rectangle getBoundingRectangle() {
 									return new EmptyRectangle(center);
 								}
@@ -1388,7 +1420,7 @@ public class BluePrintParser {
 								}
 							};
 						}
-						
+
 					});
 				}
 
@@ -1404,21 +1436,21 @@ public class BluePrintParser {
 					return Collections.emptyList();
 				}
 			};
-			
+
 		}
-		
+
 		private Circle registerCircle(final String name, final String layer, final Iterable<String> activeLayers, final Position center, final Distance radius, final LaserAction borderAction) {
 			if (drawingTypes.containsKey(name)) {
 				throw new IllegalStateException("A drawing of type '" + drawingTypes.get(name) + "' has already been defined with name '" + name + "' cannot declare a circle with the same name");
 			}
 			drawingTypes.put(name, DrawingType.CIRCLE);
 			centers.put(name, center);
-			
+
 			final Position radiusTop = new RelativeFromPosition(center, 0, -radius.getDistance());
 			final Position radiusBottom = new RelativeFromPosition(center, 0, radius.getDistance());
 			final Position radiusLeft = new RelativeFromPosition(center, -radius.getDistance(), 0);
 			final Position radiusRight = new RelativeFromPosition(center, radius.getDistance(), 0);
-			
+
 			radiusTops.put(name, radiusTop);
 			radiusBottoms.put(name, radiusBottom);
 			radiusLefts.put(name, radiusLeft);
@@ -1471,15 +1503,15 @@ public class BluePrintParser {
 
 				public Rectangle getBoundingRectangle() {
 					return new BoundingRectangle(
-							center, 
-							new RelativeFromPosition(radiusTop, -radius.getDistance(), 0), 
-							new RelativeFromPosition(radiusTop, radius.getDistance(), 0), 
-							new RelativeFromPosition(radiusBottom, -radius.getDistance(), 0), 
-							new RelativeFromPosition(radiusBottom, radius.getDistance(), 0), 
-							radius.getDistance(), 
-							radius.getDistance(), 
-							name, 
-							layer, 
+							center,
+							new RelativeFromPosition(radiusTop, -radius.getDistance(), 0),
+							new RelativeFromPosition(radiusTop, radius.getDistance(), 0),
+							new RelativeFromPosition(radiusBottom, -radius.getDistance(), 0),
+							new RelativeFromPosition(radiusBottom, radius.getDistance(), 0),
+							radius.getDistance(),
+							radius.getDistance(),
+							name,
+							layer,
 							radius.getUnit());
 				}
 
@@ -1494,36 +1526,36 @@ public class BluePrintParser {
 				public Iterable<Drawing> getSubDrawings() {
 					return Collections.emptyList();
 				}
-				
+
 			};
 		}
-	
+
 		private Rectangle registerRectangleFromCenter(final String name, final String layer, final Iterable<String> activeLayers, final Position center, final Distance width, final Distance height,
 				final LaserAction leftAction, final LaserAction rightAction, final LaserAction topAction, final LaserAction bottomAction) {
 			return registerRectangle(name, layer, activeLayers,
-					center, 
-					new RelativeFromPosition(center, -width.getDistance() / 2, -height.getDistance() / 2), 
-					new RelativeFromPosition(center, width.getDistance() / 2, -height.getDistance() / 2), 
-					new RelativeFromPosition(center, -width.getDistance() / 2, height.getDistance() / 2), 
+					center,
+					new RelativeFromPosition(center, -width.getDistance() / 2, -height.getDistance() / 2),
+					new RelativeFromPosition(center, width.getDistance() / 2, -height.getDistance() / 2),
+					new RelativeFromPosition(center, -width.getDistance() / 2, height.getDistance() / 2),
 					new RelativeFromPosition(center, width.getDistance() / 2, height.getDistance() / 2), width, height,
 					leftAction, rightAction, topAction, bottomAction);
 		}
-		
+
 		private Rectangle registerRectangleFromTopLeft(final String name, final String layer, final Iterable<String> activeLayers, final Position topLeft, final Distance width, final Distance height,
 				final LaserAction leftAction, final LaserAction rightAction, final LaserAction topAction, final LaserAction bottomAction) {
 			return registerRectangle(name, layer, activeLayers,
-					new RelativeFromPosition(topLeft, width.getDistance() / 2, height.getDistance() / 2), 
-					topLeft, 
-					new RelativeFromPosition(topLeft, width.getDistance(), 0), 
-					new RelativeFromPosition(topLeft, 0, height.getDistance()), 
+					new RelativeFromPosition(topLeft, width.getDistance() / 2, height.getDistance() / 2),
+					topLeft,
+					new RelativeFromPosition(topLeft, width.getDistance(), 0),
+					new RelativeFromPosition(topLeft, 0, height.getDistance()),
 					new RelativeFromPosition(topLeft, width.getDistance(), height.getDistance()), width, height,
 					leftAction, rightAction, topAction, bottomAction);
 		}
-		
+
 		private Rectangle registerRectangle(final String name, final String layer,
 				final Iterable<String> activeExtraLayer,
-				final Position center, final Position topLeft, 
-				final Position topRight, final Position bottomLeft, 
+				final Position center, final Position topLeft,
+				final Position topRight, final Position bottomLeft,
 				final Position bottomRight, final Distance width, final Distance height,
 				final LaserAction leftAction, final LaserAction rightAction, final LaserAction topAction, final LaserAction bottomAction) {
 			if (drawingTypes.containsKey(name)) {
@@ -1537,7 +1569,7 @@ public class BluePrintParser {
 			this.bottomRights.put(name, bottomRight);
 
 			logger.info("Rectangle '" + name + "/" + layer + "' has been registered");
-			
+
 			return new Rectangle() {
 
 				public String getName() {
@@ -1612,12 +1644,12 @@ public class BluePrintParser {
 				public Iterable<Drawing> getSubDrawings() {
 					return Collections.emptyList();
 				}
-				
+
 			};
 		}
-		
+
 	}
-	
+
 	private static class BoundingRectangle implements Rectangle {
 		
 		private final Position center;

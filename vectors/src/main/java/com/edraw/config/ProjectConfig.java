@@ -1,11 +1,14 @@
 package com.edraw.config;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
+import javax.sql.RowSet;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
 
 import com.edraw.VariableType;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.rattrap.utils.JAXBUtils;
 
@@ -190,6 +193,37 @@ public class ProjectConfig {
 		projectConfig.defaultVariablesValues.add(new DefaultVariableConfig("alphaDeg", "Back angle", "degrees", "The angle of the back of the chair (regarding vertical line). In degrees", "17"));
 
 		System.out.println(JAXBUtils.marshal(projectConfig, true));
+	}
+
+	@XmlEnum
+	public enum ProjectStatus {
+		@XmlEnumValue("dev")
+		DEV,
+		@XmlEnumValue("dev")
+		PROD;
+
+		public static Predicate<ProjectStatus> Filter(final ProjectStatus applicationLevel) {
+			return new Predicate<ProjectStatus>() {
+
+				@Override
+				public boolean apply(ProjectStatus o) {
+					if (applicationLevel == ProjectStatus.PROD) {
+						return o == ProjectStatus.PROD;
+					}
+					if (applicationLevel == ProjectStatus.DEV) {
+						return o == ProjectStatus.DEV || o == ProjectStatus.PROD;
+					}
+					throw new IllegalStateException("Project status '" + applicationLevel + "' is not supported yet");
+				}
+
+				@Override
+				public boolean test(ProjectStatus input) {
+					return apply(input);
+				}
+
+			};
+		}
+
 	}
 
 }

@@ -29,6 +29,10 @@ public abstract class GeometryUtils {
 	private GeometryUtils() {
 	}
 
+	public static Optional<Position> getIntersection(final Vector vector1, final Vector vector2, final boolean belong2Segment1) {
+		return getIntersection(Pair.with(vector1.getPoint1(), vector1.getPoint2()), Pair.with(vector2.getPoint1(), vector2.getPoint2()), belong2Segment1);
+	}
+
 	public static Optional<Position> getIntersection(final Pair<Position, Position> line1, final Pair<Position, Position> line2, final boolean belong2Segment1) {
 		if (det(line1, line2) == 0) {
 			return Optional.absent();
@@ -324,7 +328,7 @@ public abstract class GeometryUtils {
 		};
 	}
 	
-	private static Position getPosition(final double x, final double y, final DistanceUnit distanceUnit) {
+	public static Position getPosition(final double x, final double y, final DistanceUnit distanceUnit) {
 		return new Position() {
 			
 			public double getY() {
@@ -346,7 +350,7 @@ public abstract class GeometryUtils {
 		};
 	}
 
-	private static Vector getVector(final Position point1, final Position point2, final DistanceUnit distanceUnit) {
+	public static Vector getVector(final Position point1, final Position point2, final DistanceUnit distanceUnit) {
 		final Distance distance = getDistance(point1, point2, distanceUnit);
 		return new Vector() {
 			@Override
@@ -366,13 +370,50 @@ public abstract class GeometryUtils {
 		};
 	}
 
-	private static Vector getBisectrixVector(final Vector vector1, final Vector vector2) {
+	public static Vector getBisectrixVector(final Vector vector1, final Vector vector2) {
+		final Optional<Position> intersectionOptional = getIntersection(Pair.with(vector1.getPoint1(), vector1.getPoint2()), Pair.with(vector2.getPoint1(), vector2.getPoint2()), false);
+		if (!intersectionOptional.isPresent()) {
+			throw new IllegalStateException("No intersection found for '[(" + vector1.getPoint1() + ", " + vector1.getPoint2() + "), (" + vector2.getPoint1() + ", " + vector2.getPoint2() + ")]'");
+		}
+		final Vector newVector1 = getVector(getPosition(vector1.getPoint1().getX() - intersectionOptional.get().getX(), vector1.getPoint1().getY() - intersectionOptional.get().getY(), vector1.getLength().getUnit()), getPosition(vector1.getPoint2().getX() - intersectionOptional.get().getX(), vector1.getPoint2().getY() - intersectionOptional.get().getY(), vector1.getLength().getUnit()), vector1.getLength().getUnit());
+		final Vector newVector2 = getVector(getPosition(vector2.getPoint1().getX() - intersectionOptional.get().getX(), vector2.getPoint1().getY() - intersectionOptional.get().getY(), vector2.getLength().getUnit()), getPosition(vector2.getPoint2().getX() - intersectionOptional.get().getX(), vector2.getPoint2().getY() - intersectionOptional.get().getY(), vector2.getLength().getUnit()), vector2.getLength().getUnit());
 
-		throw new IllegalStateException("No implemented");
+		final Vector normalizedVector1 = getVector(newVector1.getPoint1(), getPosition(newVector1.getPoint2().getX() / newVector1.getLength().getDistance(), newVector1.getPoint2().getY() / newVector1.getLength().getDistance(), newVector1.getLength().getUnit()), newVector1.getLength().getUnit());
+		final Vector normalizedVector2 = getVector(newVector2.getPoint1(), getPosition(newVector2.getPoint2().getX() / newVector2.getLength().getDistance(), newVector2.getPoint2().getY() / newVector2.getLength().getDistance(), newVector2.getLength().getUnit()), newVector2.getLength().getUnit());
+
+		final double minX = Math.min(normalizedVector1.getPoint2().getX(), normalizedVector2.getPoint2().getX());
+		final double minY = Math.min(normalizedVector1.getPoint2().getY(), normalizedVector2.getPoint2().getY());
+
+		final Position bisectrix = getPosition(minX + Math.abs((normalizedVector1.getPoint2().getX() - normalizedVector2.getPoint2().getX()) / 2), minY + Math.abs((normalizedVector1.getPoint2().getY() - normalizedVector2.getPoint2().getY()) / 2), newVector1.getLength().getUnit());
+
+		final Optional<Position> bisectrixIntersection = getIntersection(Pair.with(intersectionOptional.get(), bisectrix), Pair.with(newVector1.getPoint2(), newVector2.getPoint2()), false);
+
+		if (!bisectrixIntersection.isPresent()) {
+			throw new IllegalStateException("Cannot determine bisectrix of vectors '[(" + vector1.getPoint1() + ", " + vector1.getPoint2() + "), (" + vector2.getPoint1() + ", " + vector2.getPoint2() + ")]");
+		}
+		return getVector(intersectionOptional.get(), bisectrixIntersection.get(), vector1.getLength().getUnit());
 	}
 
 	private static Vector getInnerCircle(final Vector vector1, final Vector vector2, final Distance radius) {
 		throw new IllegalStateException("No implemented");
+	}
+
+	public static double getVectorProduct(final Vector vector1, final Vector vector2) {
+		return (vector1.getPoint2().getX() - vector1.getPoint1().getX()) * (vector2.getPoint2().getX() - vector2.getPoint1().getX())
+				+ (vector1.getPoint2().getY() - vector1.getPoint1().getY()) * (vector2.getPoint2().getY() - vector2.getPoint1().getY());
+	}
+
+	public static double getAngleInRad(final Vector vector1, final Vector vector2) {
+		if (vector1.getLength().getDistance() == 0) {
+			throw new IllegalArgumentException("Cannot evaluate the angle of a point vector");
+		}
+		if (vector2.getLength().getDistance() == 0) {
+			throw new IllegalArgumentException("Cannot evaluate the angle of a point vector");
+		}
+		if (!getIntersection(vector1, vector2, false).isPresent()) {
+			return 0;
+		}
+		return Math.acos(getVectorProduct(vector1, vector2) / (vector1.getLength().getDistance() * vector2.getLength().getDistance()));
 	}
 
 }

@@ -6,7 +6,15 @@ import javax.xml.bind.annotation.*;
 import java.util.Collection;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlSeeAlso(value = {LaserCircle.class, LaserRectangle.class, LaserPath.class, LaserPoint.class, LaserCrenel.class, LaserHinge.class, LaserText.class})
+@XmlSeeAlso(value = {
+		LaserCircle.class,
+		LaserArcCircle.class,
+		LaserRectangle.class,
+		LaserPath.class,
+		LaserPoint.class,
+		LaserCrenel.class,
+		LaserHinge.class,
+		LaserText.class})
 public class LaserDrawing {
 
 	@XmlAttribute
