@@ -10,6 +10,10 @@
             <status>PROD</status>
         </project>
         <project>
+            <url>https://raw.githubusercontent.com/cescoff/slotstool/master/project.xml</url>
+            <status>PROD</status>
+        </project>
+        <project>
             <url>https://raw.githubusercontent.com/cescoff/rattrapstool/master/project.xml</url>
             <status>PROD</status>
         </project>
