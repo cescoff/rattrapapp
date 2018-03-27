@@ -1,14 +1,19 @@
 package com.edraw.config.laser.parser;
 
 import com.edraw.*;
+import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.config.laser.LaserArcCircle;
-import com.edraw.geom.Drawing;
+import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 
 public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> {
 
@@ -32,44 +37,184 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
             throw new ValidationError(ErrorMessage.create("Cannot parse position 2 of arc named '" + drawing.getName() + "' (" + drawing.getPoint1().getX() + ", " + drawing.getPoint1().getY() + ")"));
         }
 
-        final double angleAlpha = GeometryUtils.getAngleInRad(GeometryUtils.getVector(pointC.get(), pointA.get(), context.getDistanceUnit()), GeometryUtils.getVector(pointC.get(), pointB.get(), context.getDistanceUnit()));
-
-        final double direction = (-1) * (angleAlpha / Math.abs(angleAlpha));
-
         final Double radius = context.evaluate(drawing.getRadius(), Double.class);
 
-        logger.info("Parsing arc circle '{}' with center '[{}, {}]', alpha {}rad, direction {}, point1=[{}, {}], point2=[{}, {}]", drawing.getName(), pointC.get().getX(), pointC.get().getY(), angleAlpha, direction, pointA.get().getX(), pointA.get().getY(), pointB.get().getX(), pointB.get().getY());
-
-        final ImmutableList.Builder<Position> path = ImmutableList.builder();
-
-        final double caDistance = GeometryUtils.getVector(pointA.get(), pointC.get(), context.getDistanceUnit()).getLength().getDistance();
-        final Position start = GeometryUtils.getPosition((radius / caDistance) * (pointA.get().getX() - pointC.get().getX()) + pointC.get().getX(), (radius / caDistance) * (pointA.get().getY() - pointC.get().getY()) + pointC.get().getY(), context.getDistanceUnit());
-        path.add(start);
-        logger.debug("[{}] Adding position ({}, {})", drawing.getName(), start.getX(), start.getY());
-
-        double angleTeta = direction / radius;
-
-        while (Math.abs(angleTeta) < Math.abs(angleAlpha)) {
-            final double xV = ((radius * Math.cos(angleTeta) + radius * Math.sin(angleTeta) * ((pointA.get().getY() - pointC.get().getY()) / (pointA.get().getX() - pointC.get().getX()))) / GeometryUtils.getVector(pointC.get(), pointA.get(), context.getDistanceUnit()).getLength().getDistance()) * (pointA.get().getX() - pointC.get().getX()) + pointC.get().getX();
-            final double yV = ((radius * Math.sin(angleTeta) - radius * Math.cos(angleTeta) * ((pointA.get().getY() - pointC.get().getY()) / (pointA.get().getX() - pointC.get().getX()))) / GeometryUtils.getVector(pointC.get(), pointA.get(), context.getDistanceUnit()).getLength().getDistance()) * (pointA.get().getX() - pointC.get().getX()) + pointC.get().getY();;
-
-            final Position pathElement = GeometryUtils.getPosition(xV, yV, context.getDistanceUnit());
-
-            logger.debug("[{}] Adding position ({}, {})", drawing.getName(), xV, yV);
-
-            path.add(pathElement);
-
-            angleTeta = angleTeta + (direction / radius);
-        }
-
-        final double cbDistance = GeometryUtils.getVector(pointB.get(), pointC.get(), context.getDistanceUnit()).getLength().getDistance();
-        final Position end = GeometryUtils.getPosition((radius / cbDistance) * (pointB.get().getX() - pointC.get().getX()) + pointC.get().getX(), (radius / cbDistance) * (pointB.get().getY() - pointC.get().getY()) + pointC.get().getY(), context.getDistanceUnit());
-        path.add(end);
-        logger.debug("[{}] Adding position ({}, {})", drawing.getName(), end.getX(), end.getY());
-
-        return context.registerPath(drawing, path.build(), LaserAction.valueOf(drawing.getAction()));
+        return new LateBindingArcPath(LaserAction.valueOf(drawing.getAction()), drawing.getName(), drawing.getLayer(), radius, context.getActiveLayers(drawing), pointC.get(), pointC.get(), pointA.get(), pointB.get(), context);
     }
 
+    private static class LateBindingArcPath implements Path {
 
+        private final LaserAction action;
+
+        private final String name;
+
+        private final String layer;
+
+        private final double radius;
+
+        private final Iterable<Layer> extraActiveLayers;
+
+        private final Position center;
+
+        private final Position pointC;
+
+        private final Position pointA;
+
+        private final Position pointB;
+
+        private final BluePrintContext context;
+
+        public LateBindingArcPath(LaserAction action, String name, String layer, double radius, Iterable<Layer> extraActiveLayers, Position center, Position pointC, Position pointA, Position pointB, BluePrintContext context) {
+            this.action = action;
+            this.name = name;
+            this.layer = layer;
+            this.radius = radius;
+            this.extraActiveLayers = extraActiveLayers;
+            this.center = center;
+            this.pointC = pointC;
+            this.pointA = pointA;
+            this.pointB = pointB;
+            this.context = context;
+        }
+
+        @Override
+        public Iterable<Point> getPoints() {
+            final double angleAlpha = GeometryUtils.getAngleInRad(GeometryUtils.getVector(pointC, pointA, context.getDistanceUnit()), GeometryUtils.getVector(pointC, pointB, context.getDistanceUnit()));
+
+            final double direction = (-1) * (angleAlpha / Math.abs(angleAlpha));
+
+            logger.info("Parsing arc circle '{}' with center '[{}, {}]', alpha {}rad, direction {}, point1=[{}, {}], point2=[{}, {}]", name, pointC.getX(), pointC.getY(), angleAlpha, direction, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
+
+            final ImmutableList.Builder<Position> path = ImmutableList.builder();
+
+            final double caDistance = GeometryUtils.getVector(pointA, pointC, context.getDistanceUnit()).getLength().getDistance();
+            final Position start = GeometryUtils.getPosition((radius / caDistance) * (pointA.getX() - pointC.getX()) + pointC.getX(), (radius / caDistance) * (pointA.getY() - pointC.getY()) + pointC.getY(), context.getDistanceUnit());
+            path.add(start);
+            logger.debug("[{}] Adding position ({}, {})", name, start.getX(), start.getY());
+
+            double angleTeta = direction / radius;
+
+            while (Math.abs(angleTeta) < Math.abs(angleAlpha)) {
+                final double xV = ((radius * Math.cos(angleTeta) + radius * Math.sin(angleTeta) * ((pointA.getY() - pointC.getY()) / (pointA.getX() - pointC.getX()))) / GeometryUtils.getVector(pointC, pointA, context.getDistanceUnit()).getLength().getDistance()) * (pointA.getX() - pointC.getX()) + pointC.getX();
+                final double yV = ((radius * Math.sin(angleTeta) - radius * Math.cos(angleTeta) * ((pointA.getY() - pointC.getY()) / (pointA.getX() - pointC.getX()))) / GeometryUtils.getVector(pointC, pointA, context.getDistanceUnit()).getLength().getDistance()) * (pointA.getX() - pointC.getX()) + pointC.getY();;
+
+                final Position pathElement = GeometryUtils.getPosition(xV, yV, context.getDistanceUnit());
+
+                logger.debug("[{}] Adding position ({}, {})", name, xV, yV);
+
+                path.add(pathElement);
+
+                angleTeta = angleTeta + (direction / radius);
+            }
+
+            final double cbDistance = GeometryUtils.getVector(pointB, pointC, context.getDistanceUnit()).getLength().getDistance();
+            final Position end = GeometryUtils.getPosition((radius / cbDistance) * (pointB.getX() - pointC.getX()) + pointC.getX(), (radius / cbDistance) * (pointB.getY() - pointC.getY()) + pointC.getY(), context.getDistanceUnit());
+            path.add(end);
+            logger.debug("[{}] Adding position ({}, {})", name, end.getX(), end.getY());
+
+            return Iterables.transform(path.build(), new Function<Position, Point>() {
+
+                @Override
+                public Point apply(final Position position) {
+                    return new Point() {
+                        @Override
+                        public String getName() {
+                            return null;
+                        }
+
+                        @Override
+                        public Layer getLayer() {
+                            return new Layer() {
+                                @Override
+                                public String getName() {
+                                    return layer;
+                                }
+
+                                @Override
+                                public boolean isActive() {
+                                    return true;
+                                }
+                            };
+                        }
+
+                        @Override
+                        public Iterable<Layer> getExtraLayers() {
+                            return Collections.emptyList();
+                        }
+
+                        @Override
+                        public Position getCenter() {
+                            return position;
+                        }
+
+                        @Override
+                        public Rectangle getBoundingRectangle() {
+                            return null;
+                        }
+
+                        @Override
+                        public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
+                            return Collections.emptyList();
+                        }
+
+                        @Override
+                        public Iterable<Drawing> getSubDrawings() {
+                            return Collections.emptyList();
+                        }
+                    };
+                }
+            });
+        }
+
+        @Override
+        public LaserAction getBorderAction() {
+            return action;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Layer getLayer() {
+            return new Layer() {
+                @Override
+                public String getName() {
+                    return layer;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return true;
+                }
+            };
+        }
+
+        @Override
+        public Iterable<Layer> getExtraLayers() {
+            return extraActiveLayers;
+        }
+
+        @Override
+        public Position getCenter() {
+            return center;
+        }
+
+        @Override
+        public Rectangle getBoundingRectangle() {
+            return null;
+        }
+
+        @Override
+        public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Iterable<Drawing> getSubDrawings() {
+            return Collections.emptyList();
+        }
+    }
 
 }

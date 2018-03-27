@@ -408,12 +408,12 @@ public class BluePrintParser {
 
 			@Override
 			public Path registerPath(LaserDrawing drawing, Iterable<Position> points, LaserAction borderAction) {
-				return positionContext.registerPath(drawing.getName(), drawing.getLayer(), getActiveLayers(drawing), points, getDistanceUnit(), borderAction);
+				return positionContext.registerPath(drawing.getName(), drawing.getLayer(), getActiveLayerStrings(drawing), points, getDistanceUnit(), borderAction);
 			}
 
 			@Override
 			public Circle registerCircle(LaserDrawing drawing, Position center, Distance radius, LaserAction borderAction) {
-				return positionContext.registerCircle(drawing.getName(), drawing.getLayer(), getActiveLayers(drawing), center, radius, borderAction);
+				return positionContext.registerCircle(drawing.getName(), drawing.getLayer(), getActiveLayerStrings(drawing), center, radius, borderAction);
 			}
 
 			@Override
@@ -431,7 +431,12 @@ public class BluePrintParser {
 				return defaultDistanceUnit;
 			}
 
-			private Iterable<String> getActiveLayers(final LaserDrawing drawing) {
+            @Override
+            public Iterable<Layer> getActiveLayers(LaserDrawing drawing) {
+                return Iterables.transform(getActiveLayerStrings(drawing), TO_ACTIVE_BLUEPRINT_LAYER);
+            }
+
+            public Iterable<String> getActiveLayerStrings(final LaserDrawing drawing) {
 				final Iterable<String> extraActiveLayers;
 				if (drawing != null) {
 					return Iterables.transform(Iterables.filter(drawing.getExtraLayers(), GetActiveLayer(drawing.getName())), LASER_LAYER_TO_STRING);

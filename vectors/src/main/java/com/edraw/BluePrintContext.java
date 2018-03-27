@@ -6,6 +6,7 @@ import com.edraw.config.LaserAction;
 import com.edraw.config.laser.LaserDrawing;
 import com.edraw.config.laser.LaserPoint;
 import com.edraw.geom.Circle;
+import com.edraw.geom.Layer;
 import com.edraw.geom.Path;
 import com.edraw.geom.Text;
 import com.google.common.base.Optional;
@@ -27,5 +28,7 @@ public interface BluePrintContext {
     public String print(final String expression) throws Exception;
 
     public DistanceUnit getDistanceUnit();
+
+    public Iterable<Layer> getActiveLayers(final LaserDrawing drawing);
 
 }
