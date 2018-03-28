@@ -419,4 +419,17 @@ public abstract class GeometryUtils {
 		return Math.acos(cosine);
 	}
 
+	public static Position rotate(final Position point2Rotate, final Position center, final double angle) {
+		if (angle == 0) {
+			return point2Rotate;
+		}
+		final double cos = Math.cos(angle);
+		final double sin = Math.sin(angle);
+
+		final double x = cos * (point2Rotate.getX() - center.getX()) - sin * (point2Rotate.getY() - center.getY()) + center.getX();
+		final double y = sin * (point2Rotate.getX() - center.getX()) + cos * (point2Rotate.getY() - center.getY()) + center.getY();
+
+		return getPosition(x, y , point2Rotate.getUnit());
+	}
+
 }

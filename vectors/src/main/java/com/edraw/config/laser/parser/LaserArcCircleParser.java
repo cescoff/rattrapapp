@@ -83,9 +83,18 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
 
             logger.info("Parsing arc circle '{}' with center '[{}, {}]', alpha {}rad, point1=[{}, {}], point2=[{}, {}]", name, pointC.getX(), pointC.getY(), angleAlpha, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
 
+            if (GeometryUtils.getDistance(pointC, pointA, context.getDistanceUnit()).getDistance() < 1) {
+                throw new ValidationError(ErrorMessage.create("Arc circle '" + name + "' has point 1 equals to center"));
+            }
+
+            if (GeometryUtils.getDistance(pointC, pointB, context.getDistanceUnit()).getDistance() < 1) {
+                throw new ValidationError(ErrorMessage.create("Arc circle '" + name + "' has point 2 equals to center"));
+            }
+
             final ImmutableList.Builder<Position> path = ImmutableList.builder();
 
             final double caDistance = GeometryUtils.getVector(pointA, pointC, context.getDistanceUnit()).getLength().getDistance();
+            final double rotationAngle = GeometryUtils.getAngleInRad(GeometryUtils.getVector(pointC, pointA, pointC.getUnit()), GeometryUtils.getVector(pointC, GeometryUtils.getPosition(pointC.getX(), 0, pointC.getUnit()), pointC.getUnit()));
             final Position start = GeometryUtils.getPosition((radius / caDistance) * (pointA.getX() - pointC.getX()) + pointC.getX(), (radius / caDistance) * (pointA.getY() - pointC.getY()) + pointC.getY(), context.getDistanceUnit());
             path.add(start);
             logger.debug("[{}] Adding position ({}, {})", name, start.getX(), start.getY());
@@ -97,10 +106,10 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
                 if (logger.isDebugEnabled()) {
                     logger.debug("[{}] Distance to target {}{}", name, GeometryUtils.getDistance(current, pointB, context.getDistanceUnit()).getDistance(), context.getDistanceUnit().getSymbol());
                 }
-                final double xV = ((radius * Math.cos(angleTeta) + radius * Math.sin(angleTeta) * ((pointA.getY() - pointC.getY()) / (pointA.getX() - pointC.getX()))) / GeometryUtils.getVector(pointC, pointA, context.getDistanceUnit()).getLength().getDistance()) * (pointA.getX() - pointC.getX()) + pointC.getX();
-                final double yV = ((radius * Math.sin(angleTeta) - radius * Math.cos(angleTeta) * ((pointA.getY() - pointC.getY()) / (pointA.getX() - pointC.getX()))) / GeometryUtils.getVector(pointC, pointA, context.getDistanceUnit()).getLength().getDistance()) * (pointA.getX() - pointC.getX()) + pointC.getY();;
+                final double xV = (radius * Math.cos(angleTeta)) + pointC.getX();
+                final double yV = (radius * Math.sin(angleTeta)) + pointC.getY();
 
-                current = GeometryUtils.getPosition(xV, yV, context.getDistanceUnit());
+                current = GeometryUtils.rotate(GeometryUtils.getPosition(xV, yV, context.getDistanceUnit()), pointC, rotationAngle);
 
                 logger.debug("[{}] Adding position ({}, {})", name, xV, yV);
 
