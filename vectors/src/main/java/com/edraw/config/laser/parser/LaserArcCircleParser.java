@@ -125,7 +125,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
             logger.info("Parsing arc circle '{}' with center '[{}, {}]', initial angle {}rad, point1=[{}, {}], point2=[{}, {}]", name, pointC.getX(), pointC.getY(), angleTeta, pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY());
 
             Position current = start;
-            while (GeometryUtils.getDistance(current, end, context.getDistanceUnit()).getDistance() > 2) {
+            while (GeometryUtils.getDistance(current, end, context.getDistanceUnit()).getDistance() > 1) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("[{}] Distance to target {}{}", name, GeometryUtils.getDistance(current, end, context.getDistanceUnit()).getDistance(), context.getDistanceUnit().getSymbol());
                 }
@@ -153,6 +153,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
                 @Override
                 public Point apply(final Position position) {
                     return new Point() {
+
                         @Override
                         public String getName() {
                             return null;
@@ -161,6 +162,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
                         @Override
                         public Layer getLayer() {
                             return new Layer() {
+
                                 @Override
                                 public String getName() {
                                     return layer;
@@ -170,6 +172,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
                                 public boolean isActive() {
                                     return true;
                                 }
+
                             };
                         }
 
@@ -197,6 +200,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
                         public Iterable<Drawing> getSubDrawings() {
                             return Collections.emptyList();
                         }
+
                     };
                 }
             });

@@ -94,8 +94,10 @@ public class BluePrintParser {
 		
 		final Iterable<Position> allPositions = BluePrintUtils.getAllPositions(drawings);
 		final Rectangle boundingRectangle = GeometryUtils.getBoundingRectangle(null, null, allPositions);
-		
-		return new BluePrint() {
+
+		return BluePrintUtils.getBluePrint(defaultDistanceUnit, drawings);
+
+/*		return new BluePrint() {
 			
 			public Iterable<Drawing> getDrawings() {
 				return drawings;
@@ -183,7 +185,7 @@ public class BluePrintParser {
 			public Rectangle getBoundingRectangle() {
 				return boundingRectangle;
 			}
-		};
+		};*/
 	}
 	
 	private void registerPoint(final LaserDrawing laserDrawing) {
@@ -1149,7 +1151,7 @@ public class BluePrintParser {
 		public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
 			final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
 			for (final Path path : subPathes) {
-				if (path.getLayer() == null || StringUtils.isEmpty(path.getLayer().getName()) || Iterables.contains(activeLayers, path.getLayer())) {
+				if (path.getLayer() == null || StringUtils.isEmpty(path.getLayer().getName()) || Iterables.contains(activeLayers, path.getLayer().getName())) {
 					result.add(path);
 				}
 			}
