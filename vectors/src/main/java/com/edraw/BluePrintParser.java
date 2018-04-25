@@ -658,6 +658,11 @@ public class BluePrintParser {
                                     throw new ValidationError(ErrorMessage.create("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'"));
                                 }
                             }
+
+                            @Override
+                            public boolean test(String input) {
+                                return true;
+                            }
                         }
                 );
             }
