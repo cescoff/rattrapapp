@@ -218,18 +218,7 @@ public class Splitter implements Transformation {
 			
 			@Override
 			public Layer getLayer() {
-
-				return new Layer() {
-					@Override
-					public String getName() {
-						return layer;
-					}
-
-					@Override
-					public boolean isActive() {
-						return true;
-					}
-				};
+				return new BasicLayer(layer, true);
 			}
 
 			@Override
@@ -270,18 +259,7 @@ public class Splitter implements Transformation {
 							
 							@Override
 							public Layer getLayer() {
-
-								return new Layer() {
-									@Override
-									public String getName() {
-										return layer;
-									}
-
-									@Override
-									public boolean isActive() {
-										return true;
-									}
-								};
+								return new BasicLayer(layer, true);
 							}
 
 							@Override

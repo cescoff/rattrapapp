@@ -6,7 +6,9 @@ import com.edraw.config.LaserAction;
 import com.edraw.config.laser.*;
 import com.edraw.config.laser.parser.LaserDrawingParser;
 import com.edraw.geom.*;
+import com.edraw.impl.BasicLayer;
 import com.edraw.impl.BluePrintUtils;
+import com.edraw.impl.DynamicLayer;
 import com.edraw.impl.EmptyRectangle;
 import com.edraw.utils.GeometryUtils;
 import com.edraw.utils.RelativeFromPosition;
@@ -645,22 +647,19 @@ public class BluePrintParser {
 	    return new Function<LaserLayer, Layer>() {
             @Override
             public Layer apply(final LaserLayer laserLayer) {
-                return new Layer() {
-                    @Override
-                    public String getName() {
-                        return laserLayer.getName();
-                    }
-
-                    @Override
-                    public boolean isActive() {
-                        try {
-                            return varContext.evaluate(laserLayer.getCondition(), Boolean.class);
-                        } catch (Throwable t) {
-                            logger.error("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'", t);
-                            throw new ValidationError(ErrorMessage.create("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'"));
+                return new DynamicLayer(laserLayer.getName(),
+                        new Predicate<String>() {
+                            @Override
+                            public boolean apply(String s) {
+                                try {
+                                    return varContext.evaluate(laserLayer.getCondition(), Boolean.class);
+                                } catch (Throwable t) {
+                                    logger.error("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'", t);
+                                    throw new ValidationError(ErrorMessage.create("Wrong layer condition '" + laserLayer.getCondition() + "' on drawing '" + drawingName + "'"));
+                                }
+                            }
                         }
-                    }
-                };
+                );
             }
         };
     }
@@ -669,17 +668,7 @@ public class BluePrintParser {
 	private static final Function<String, Layer> TO_ACTIVE_BLUEPRINT_LAYER = new Function<String, Layer>() {
 		@Override
 		public Layer apply(final String laserLayer) {
-			return new Layer() {
-				@Override
-				public String getName() {
-					return laserLayer;
-				}
-
-				@Override
-				public boolean isActive() {
-					return true;
-				}
-			};
+		    return new BasicLayer(laserLayer, true);
 		}
 	};
 
@@ -1281,17 +1270,7 @@ public class BluePrintParser {
 				}
 
 				public Layer getLayer() {
-					return new Layer() {
-						@Override
-						public String getName() {
-							return layer;
-						}
-
-						@Override
-						public boolean isActive() {
-							return true;
-						}
-					};
+				    return new BasicLayer(layer, true);
 				}
 
 				@Override

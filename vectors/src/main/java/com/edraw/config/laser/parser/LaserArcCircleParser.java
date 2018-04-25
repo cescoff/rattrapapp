@@ -5,6 +5,7 @@ import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.config.laser.LaserArcCircle;
 import com.edraw.geom.*;
+import com.edraw.impl.BasicLayer;
 import com.edraw.utils.GeometryUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -161,19 +162,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
 
                         @Override
                         public Layer getLayer() {
-                            return new Layer() {
-
-                                @Override
-                                public String getName() {
-                                    return layer;
-                                }
-
-                                @Override
-                                public boolean isActive() {
-                                    return true;
-                                }
-
-                            };
+                            return new BasicLayer(name, true);
                         }
 
                         @Override
@@ -218,17 +207,7 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
 
         @Override
         public Layer getLayer() {
-            return new Layer() {
-                @Override
-                public String getName() {
-                    return layer;
-                }
-
-                @Override
-                public boolean isActive() {
-                    return true;
-                }
-            };
+            return new BasicLayer(layer, true);
         }
 
         @Override
