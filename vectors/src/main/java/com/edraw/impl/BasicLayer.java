@@ -15,12 +15,12 @@ public class BasicLayer implements Layer {
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
     public boolean isActive() {
-        return false;
+        return active;
     }
 
     @Override
