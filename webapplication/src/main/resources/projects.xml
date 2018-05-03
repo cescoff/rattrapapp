@@ -5,10 +5,10 @@
             <url>https://raw.githubusercontent.com/cescoff/rattrapchair/master/project.xml</url>
             <status>PROD</status>
         </project>
-        <project>
+<!--        <project>
             <url>https://raw.githubusercontent.com/cescoff/advancedrattrapchair/master/project.xml</url>
             <status>PROD</status>
-        </project>
+        </project>-->
         <project>
             <url>https://raw.githubusercontent.com/cescoff/towely/master/project.xml</url>
             <status>PROD</status>
@@ -17,9 +17,9 @@
             <url>https://raw.githubusercontent.com/cescoff/slotstool/master/project.xml</url>
             <status>PROD</status>
         </project>
-        <project>
+<!--        <project>
             <url>https://raw.githubusercontent.com/cescoff/rattrapstool/master/project.xml</url>
             <status>PROD</status>
-        </project>
+        </project>-->
     </projects>
 </projects>
