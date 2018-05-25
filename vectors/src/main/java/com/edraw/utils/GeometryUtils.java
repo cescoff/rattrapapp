@@ -6,9 +6,7 @@ import com.edraw.Vector;
 import com.edraw.config.Distance;
 import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
-import com.edraw.geom.Drawing;
-import com.edraw.geom.Layer;
-import com.edraw.geom.Rectangle;
+import com.edraw.geom.*;
 import com.edraw.impl.BasicLayer;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -22,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class GeometryUtils {
 
@@ -188,7 +187,58 @@ public abstract class GeometryUtils {
 		}
 		throw new IllegalStateException("Cannot determine forward or backward vector with : Direction='" + direction + "', Point1=[" + point1.getX() + ", " + point1.getY() + "], Point2=[" + point2.getX() + ", " + point2.getY() + "], DeltaX1=" + resultX1 + ", DeltaY1=" + resultY1 + " and DeltaX2=" + resultX2 + ", DeltaY2=" + resultY2);
 	}
-	
+
+	public static Vector getParalellVector(final Position point1, final Position point2, final Distance distance, final Direction direction) {
+		final Position vectorPoint1 = getOrthoPoint(point1, point2, distance, direction);
+		final Position vectorPoint2 = getOrthoPoint(point2, point1, distance, direction);
+
+		return getVector(vectorPoint1, vectorPoint2, distance.getUnit());
+	}
+
+	public static Iterable<Vector> getHatchVectors(final Iterable<Point> points, final DistanceUnit distanceUnit) {
+		if (Iterables.size(points) <= 2) {
+			return Collections.emptyList();
+		}
+		int index = 0;
+		Position previousEven = null;
+		Position previousOdd = null;
+        Position firstEven = null;
+        Position firstOdd = null;
+
+		final ImmutableList.Builder<Vector> result = ImmutableList.builder();
+		for (final Point point : points) {
+			if (index % 2 == 0) {
+			    if (previousEven != null) {
+                    result.add(getVector(previousEven, point.getCenter(), distanceUnit));
+                } else {
+			        firstEven = point.getCenter();
+                }
+                previousEven = point.getCenter();
+            } else {
+                if (previousOdd != null) {
+                    result.add(getVector(previousOdd, point.getCenter(), distanceUnit));
+                } else {
+                    firstOdd = point.getCenter();
+                }
+                previousOdd = point.getCenter();
+            }
+            index++;
+		}
+
+        if (firstEven != null && previousEven != null) {
+		    result.add(getVector(firstEven, previousEven, distanceUnit));
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("[EVEN] No final hatch vector for point count {}", Iterables.size(points));
+        }
+        if (firstOdd != null && previousOdd != null) {
+            result.add(getVector(firstOdd, previousOdd, distanceUnit));
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("[ODD] No final hatch vector for point count {}", Iterables.size(points));
+        }
+
+        return result.build();
+	}
+
 	public static Pair<Position, Position> getRectangleEdges(final Position point1, final Position point2, final Distance distance, final Direction direction) {
 		if (logger.isDebugEnabled()) logger.debug("[RECTANGLE] Direction='" + direction + "', Point1=[" + point1.getX() + ", " + point1.getY() + "], Point2=[" + point2.getX() + ", " + point2.getY() + "]");
 		final Position nextEdge = getOrthoPoint(point1, point2, distance, direction);
@@ -421,5 +471,115 @@ public abstract class GeometryUtils {
 
 		return getPosition(x, y , point2Rotate.getUnit());
 	}
+
+	public static Function<Position, Point> ToPoint(final String name, final String layer, final AtomicInteger counter) {
+	    return new Function<Position, Point>() {
+            @Override
+            public Point apply(final Position position) {
+                final Integer index = counter.incrementAndGet();
+                return new Point() {
+                    @Override
+                    public String getName() {
+                        return name + "_" + index;
+                    }
+
+                    @Override
+                    public Layer getLayer() {
+                        return new BasicLayer(layer, true);
+                    }
+
+                    @Override
+                    public Iterable<Layer> getExtraLayers() {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public Position getCenter() {
+                        return position;
+                    }
+
+                    @Override
+                    public Rectangle getBoundingRectangle() {
+                        return null;
+                    }
+
+                    @Override
+                    public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public Iterable<Drawing> getSubDrawings() {
+                        return Collections.emptyList();
+                    }
+                };
+            }
+        };
+    }
+
+	public static Function<Vector, Path> ToPath(final String name, final String layer, final Iterable<String> extraActiveLayers, final LaserAction borderAction, final AtomicInteger counter) {
+	    return new Function<Vector, Path>() {
+            @Override
+            public Path apply(final Vector vector) {
+                final int index = counter.incrementAndGet();
+                return new Path() {
+                    @Override
+                    public Iterable<Point> getPoints() {
+                        return Iterables.transform(ImmutableList.of(vector.getPoint1(), vector.getPoint2()), ToPoint(name + "_pt_" + index, layer, new AtomicInteger()));
+                    }
+
+                    @Override
+                    public LaserAction getBorderAction() {
+                        return borderAction;
+                    }
+
+                    @Override
+                    public Optional<LaserAction> getHatchAction() {
+                        return Optional.absent();
+                    }
+
+                    @Override
+                    public Iterable<Path> getHatchPath() {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public String getName() {
+                        return name + "_" + index;
+                    }
+
+                    @Override
+                    public Layer getLayer() {
+                        return new BasicLayer(layer, true);
+                    }
+
+                    @Override
+                    public Iterable<Layer> getExtraLayers() {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public Position getCenter() {
+                        return getBaryCentricPosition(ImmutableList.<Position>of(vector.getPoint1(), vector.getPoint2()));
+                    }
+
+                    @Override
+                    public Rectangle getBoundingRectangle() {
+                        return null;
+                    }
+
+                    @Override
+                    public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public Iterable<Drawing> getSubDrawings() {
+                        return Collections.emptyList();
+                    }
+                };
+            }
+        };
+    }
 
 }

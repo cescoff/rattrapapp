@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +65,7 @@ public class BluePrintParser {
             } else {
                 try {
                     registerPoint(laserDrawing);
-                    final Optional<Rectangle> rectangle = parseRectangle(laserDrawing);
+                    final Optional<Drawing> rectangle = parseRectangle(laserDrawing);
                     if (rectangle.isPresent()) {
                         drawings.add(rectangle.get());
                     } else {
@@ -218,8 +219,15 @@ public class BluePrintParser {
 			
 			points.add(getPosition(xRelative, yRelative, laserPoint.getX(), laserPoint.getY()));
 		}
-		
-		return Optional.of(positionContext.registerPath(laserDrawing.getName(), laserDrawing.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), points, defaultDistanceUnit, LaserAction.valueOf(laserPath.getAction())));
+
+		final Optional<LaserAction> hatchAction;
+		if (StringUtils.isNotEmpty(laserPath.getHatchAction())) {
+		    hatchAction = Optional.of(LaserAction.valueOf(laserPath.getHatchAction()));
+        } else {
+		    hatchAction = Optional.absent();
+        }
+
+		return Optional.of(positionContext.registerPath(laserDrawing.getName(), laserDrawing.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), points, defaultDistanceUnit, LaserAction.valueOf(laserPath.getAction()), hatchAction));
 		
 	}
 	
@@ -286,7 +294,7 @@ public class BluePrintParser {
 		return Optional.<Circle>of(positionContext.registerCircle(laserDrawing.getName(), laserDrawing.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), center, radius, LaserAction.valueOf(laserCircle.getAction())));
 	}
 	
-	private Optional<Rectangle> parseRectangle(final LaserDrawing laserDrawing) {
+	private Optional<Drawing> parseRectangle(final LaserDrawing laserDrawing) {
 		if (!(laserDrawing instanceof LaserRectangle)) {
 			return Optional.absent();
 		}
@@ -311,7 +319,8 @@ public class BluePrintParser {
 			final Optional<Quartet<String, PositionType, Double, DistanceUnit>> yRelative = parseRelativePosition(laserRectangle.getCenterPositionY());
 			
 			center = getPosition(xRelative, yRelative, laserRectangle.getCenterPositionX(), laserRectangle.getCenterPositionY());
-			return Optional.<Rectangle>of(positionContext.registerRectangleFromCenter(
+
+			return Optional.<Drawing>of(positionContext.registerRectangleFromCenter(
 					laserRectangle.getName(), laserRectangle.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), center, width, height,
 					LaserAction.valueOf(laserRectangle.getLeftAction()), LaserAction.valueOf(laserRectangle.getRightAction()), LaserAction.valueOf(laserRectangle.getTopAction()), LaserAction.valueOf(laserRectangle.getBottomAction())));
 		} else if (StringUtils.isNotEmpty(laserRectangle.getTopLeftPositionX()) && StringUtils.isNotEmpty(laserRectangle.getTopLeftPositionY())) {
@@ -321,7 +330,7 @@ public class BluePrintParser {
 			final Optional<Quartet<String, PositionType, Double, DistanceUnit>> yRelative = parseRelativePosition(laserRectangle.getTopLeftPositionY());
 			
 			topLeft = getPosition(xRelative, yRelative, laserRectangle.getTopLeftPositionX(), laserRectangle.getTopLeftPositionY());
-			return Optional.<Rectangle>of(positionContext.registerRectangleFromTopLeft(laserRectangle.getName(), laserRectangle.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), topLeft, width, height,
+			return Optional.<Drawing>of(positionContext.registerRectangleFromTopLeft(laserRectangle.getName(), laserRectangle.getLayer(), Iterables.transform(Iterables.filter(laserDrawing.getExtraLayers(), GetActiveLayer(laserDrawing.getName())), LASER_LAYER_TO_STRING), topLeft, width, height,
 					LaserAction.valueOf(laserRectangle.getLeftAction()), LaserAction.valueOf(laserRectangle.getRightAction()), LaserAction.valueOf(laserRectangle.getTopAction()), LaserAction.valueOf(laserRectangle.getBottomAction())));
 		} else {
 			throw new IllegalStateException("Rectangle '" + laserRectangle.getName() + "' has no reference position (Center or TopLeft)");
@@ -896,7 +905,16 @@ public class BluePrintParser {
 				throw new IllegalStateException("You must specify a crenel or a hinge");
 			}
 
-			if (crenelLength.getDistance() < (2*offSet.getDistance() + 3*minWidth.getDistance())) {
+            final Iterable<String> extraActiveLayers;
+            if (laserCrenel != null) {
+                extraActiveLayers = Iterables.transform(Iterables.filter(laserCrenel.getExtraLayers(), GetActiveLayer(laserCrenel.getName())), LASER_LAYER_TO_STRING);
+            } else if (laserHinge != null) {
+                extraActiveLayers = Iterables.transform(Iterables.filter(laserHinge.getExtraLayers(), GetActiveLayer(laserHinge.getName())), LASER_LAYER_TO_STRING);
+            } else {
+                extraActiveLayers = Collections.emptyList();
+            }
+
+            if (crenelLength.getDistance() < (2*offSet.getDistance() + 3*minWidth.getDistance())) {
 				if (laserCrenel != null) {
 					throw new IllegalStateException("Crenel '" + laserCrenel.getName() + "' is too short for width '" + minWidth + "' with offset '" + offSet+ "' and length '" + crenelLength + "'");
 				} else if (laserHinge != null) {
@@ -918,7 +936,7 @@ public class BluePrintParser {
 			} else {
 				logger.info("Crenel '" + name + "/" + layer + "' has real wdith '" + realWidth + "' and " + numberOfCrenels + " crenels");
 			}
-			
+
 			final List<Position> points = Lists.newArrayList();
 			
 			Pair<Position, Position> previousSeg = Pair.with(hingeStart, hingeEnd);
@@ -927,7 +945,10 @@ public class BluePrintParser {
 			
 			final ImmutableList.Builder<Quartet<String, String, Position, Position>> hingeExtraSpan = ImmutableList.builder();
 			final ImmutableList.Builder<Triplet<String, Position, Position>> hingeAxleCuts = ImmutableList.builder();
-			
+
+			Position teethEndStart = null;
+            Position teethEndEnd = null;
+
 			if (offSet.getDistance() > 0) {
 				final Position offSetNext = new RelativeFromPosition(hingeStart, (offSet.getDistance() / crenelLength.getDistance()) * (hingeEnd.getX() - hingeStart.getX()), (offSet.getDistance() / crenelLength.getDistance()) * (hingeEnd.getY() - hingeStart.getY()));
 				points.add(offSetNext);
@@ -935,14 +956,20 @@ public class BluePrintParser {
 				
 				final Pair<Position, Position> offSetSpanPath = GeometryUtils.getRectangleEdges(hingeStart, offSetNext, new Distance(firstCrenelLength + extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection);
 				hingeExtraSpan.add(Quartet.with(name + "_offset_span_start", layer, offSetSpanPath.getValue0(), offSetSpanPath.getValue1()));
+				this.subPathes.add(positionContext.registerPath(name + "offset_start_mark_0", layer, extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPath.getValue0(), offSetNext), defaultDistanceUnit, LaserAction.MARK));
+                this.subPathes.add(positionContext.registerPath(name + "offset_start_mark_1", layer, extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPath.getValue1(), hingeStart), defaultDistanceUnit, LaserAction.MARK));
 				if (StringUtils.isNotEmpty(sharpAngleLayer)) {
 					final Pair<Position, Position> offSetSpanPathSharpAngleOffSetStart = GeometryUtils.getRectangleEdges(previousSeg.getValue0(), previousSeg.getValue1(), new Distance(extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection.change());
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_0_start", layer, offSetSpanPathSharpAngleOffSetStart.getValue0(), offSetSpanPathSharpAngleOffSetStart.getValue1()));
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_1_start", layer, offSetSpanPathSharpAngleOffSetStart.getValue1(), offSetNext));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_0_start_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(previousSeg.getValue0(), offSetSpanPathSharpAngleOffSetStart.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_1_start_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(previousSeg.getValue1(), offSetSpanPathSharpAngleOffSetStart.getValue0()), defaultDistanceUnit, LaserAction.MARK));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_0_start", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpAngleOffSetStart.getValue0(), offSetSpanPathSharpAngleOffSetStart.getValue1()));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_1_start", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpAngleOffSetStart.getValue1(), offSetNext));
 					
 					final Pair<Position, Position> offSetSpanPathSharpAngleStart = GeometryUtils.getRectangleEdges(offSetSpanPath.getValue0(), offSetSpanPath.getValue1(), new Distance(extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection);
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_1_start", layer, offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleStart.getValue1()));
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_2_start", layer, offSetSpanPath.getValue1(), offSetSpanPathSharpAngleStart.getValue1()));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_2_start_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPath.getValue0(), offSetSpanPathSharpAngleStart.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_3_start_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPath.getValue1(), offSetSpanPathSharpAngleStart.getValue0()), defaultDistanceUnit, LaserAction.MARK));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_2_start", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleStart.getValue1()));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_3_start", laserHinge.getSharpAngleLayer(), offSetSpanPath.getValue1(), offSetSpanPathSharpAngleStart.getValue1()));
 				}
 			}			
 			
@@ -962,7 +989,7 @@ public class BluePrintParser {
 
 				final Position next1 = GeometryUtils.getTranslatedPoint(GeometryUtils.getOrthoPoint(previousSeg.getValue0(), previousSeg.getValue1(), new Distance(h, defaultDistanceUnit), currentDirection), previousSeg.getValue0(), previousSeg.getValue1());
 				final Position next2 = GeometryUtils.getTranslatedPoint(GeometryUtils.getOrthoPoint(previousSeg.getValue1(), next1, realWidth, paralellDirection), previousSeg.getValue1(), next1);
-				
+
 				if (logger.isDebugEnabled()) {
 					logger.debug("Index=" + index + ", direction=" + currentDirection + ", paralellDirection=" + paralellDirection);
 					logger.debug("PreviousSeg ([" + previousSeg.getValue0().getX() + ", " + previousSeg.getValue0().getY() + "] [" + previousSeg.getValue1().getX() + ", " + previousSeg.getValue1().getY() + "])");
@@ -976,6 +1003,13 @@ public class BluePrintParser {
 				if (laserHinge != null) {
 					if (extraHingeSpan > 0) {
 						final Pair<Position, Position> extraSpanCutSegment = GeometryUtils.getRectangleEdges(next1, next2, new Distance(extraHingeSpan, defaultDistanceUnit), currentDirection);
+                        if (index == 0) {
+                            teethEndStart = extraSpanCutSegment.getValue0();
+                        } else if (index == (numberOfCrenels - 1)) {
+                            teethEndEnd = extraSpanCutSegment.getValue0();
+                        }
+                        this.subPathes.add(positionContext.registerPath(name + "drop_mark_0_" + index, layer, extraActiveLayers, Lists.<Position>newArrayList(next1, extraSpanCutSegment.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                        this.subPathes.add(positionContext.registerPath(name + "drop_mark_1_" + index, layer, extraActiveLayers, Lists.<Position>newArrayList(next2, extraSpanCutSegment.getValue0()), defaultDistanceUnit, LaserAction.MARK));
 						hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_span_0_" + index, layer, next1, extraSpanCutSegment.getValue0()));
 						hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_span_1_" + index, layer, extraSpanCutSegment.getValue0(), extraSpanCutSegment.getValue1()));
 						hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_span_2_" + index, layer, extraSpanCutSegment.getValue1(), next2));
@@ -984,8 +1018,16 @@ public class BluePrintParser {
 							hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_sharp_span_0_" + index, sharpAngleLayer, extraSpanCutSegment.getValue0(), extraSpanCutSegmentSharpAngle.getValue0()));
 							hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_sharp_span_1_" + index, sharpAngleLayer, extraSpanCutSegmentSharpAngle.getValue0(), extraSpanCutSegmentSharpAngle.getValue1()));
 							hingeExtraSpan.add(Quartet.with(name + "_extra_hinge_sharp_span_2_" + index, sharpAngleLayer, extraSpanCutSegmentSharpAngle.getValue1(), extraSpanCutSegment.getValue1()));
+							this.subPathes.add(positionContext.registerPath(name + "_extra_hinge_sharp_span_mark_0_" + index, sharpAngleLayer, extraActiveLayers, Lists.<Position>newArrayList(extraSpanCutSegment.getValue0(), extraSpanCutSegmentSharpAngle.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                            this.subPathes.add(positionContext.registerPath(name + "_extra_hinge_sharp_span_mark_1_" + index, sharpAngleLayer, extraActiveLayers, Lists.<Position>newArrayList(extraSpanCutSegment.getValue1(), extraSpanCutSegmentSharpAngle.getValue0()), defaultDistanceUnit, LaserAction.MARK));
 						}
-					}
+					} else {
+                        if (index == 0) {
+                            teethEndStart = next1;
+                        } else if (index == (numberOfCrenels - 1)) {
+                            teethEndEnd = next1;
+                        }
+                    }
 				}
 				
 				if (currentDirection == Direction.forward) {
@@ -999,6 +1041,8 @@ public class BluePrintParser {
 					final Pair<Position, Position> bottomRectEdges = GeometryUtils.getRectangleEdges(next1, next2, new Distance(hingeHoleDistance + hingeHoleRadius * 2,  defaultDistanceUnit), currentDirection);
 					hingeAxleCuts.add(Triplet.with(name + "_hinge_top_" + index, topRectEdges.getValue0(), topRectEdges.getValue1()));
 					hingeAxleCuts.add(Triplet.with(name + "_hinge_bottom_" + index, bottomRectEdges.getValue0(), bottomRectEdges.getValue1()));
+					this.subPathes.add(positionContext.registerPath(name + "_hinge_axle_0_mark_" + index, laserHinge.getAxleLayer(), extraActiveLayers, Lists.newArrayList(topRectEdges.getValue0(), bottomRectEdges.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + "_hinge_axle_1_mark_" + index, laserHinge.getAxleLayer(), extraActiveLayers, Lists.newArrayList(topRectEdges.getValue1(), bottomRectEdges.getValue0()), defaultDistanceUnit, LaserAction.MARK));
 				}
 
 				previousSeg = Pair.with(next1, next2);
@@ -1011,28 +1055,25 @@ public class BluePrintParser {
 
 				final Pair<Position, Position> offSetSpanPath = GeometryUtils.getRectangleEdges(offSetEnd, hingeEnd, new Distance(firstCrenelLength + extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection);
 				hingeExtraSpan.add(Quartet.with(name + "_offset_span_end", layer, offSetSpanPath.getValue0(), offSetSpanPath.getValue1()));
+				this.subPathes.add(positionContext.registerPath(name + "offset_end_mark_0", layer, extraActiveLayers, Lists.<Position>newArrayList(offSetEnd, offSetSpanPath.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                this.subPathes.add(positionContext.registerPath(name + "offset_end_mark_1", layer, extraActiveLayers, Lists.<Position>newArrayList(hingeEnd, offSetSpanPath.getValue0()), defaultDistanceUnit, LaserAction.MARK));
 				if (StringUtils.isNotEmpty(sharpAngleLayer)) {
 					final Pair<Position, Position> offSetSpanPathSharpOffSetAngle = GeometryUtils.getRectangleEdges(offSetEnd, hingeEnd, new Distance(extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection.change());
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_0_end", layer, offSetSpanPathSharpOffSetAngle.getValue0(), offSetSpanPathSharpOffSetAngle.getValue1()));
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_1_end", layer, offSetEnd, offSetSpanPathSharpOffSetAngle.getValue0()));
+					this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_0_end_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(offSetEnd, offSetSpanPathSharpOffSetAngle.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_1_end_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(hingeEnd, offSetSpanPathSharpOffSetAngle.getValue0()), defaultDistanceUnit, LaserAction.MARK));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_0_end", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpOffSetAngle.getValue0(), offSetSpanPathSharpOffSetAngle.getValue1()));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_offset_1_end", laserHinge.getSharpAngleLayer(), offSetEnd, offSetSpanPathSharpOffSetAngle.getValue0()));
 					
 					final Pair<Position, Position> offSetSpanPathSharpAngleStart = GeometryUtils.getRectangleEdges(offSetSpanPath.getValue0(), offSetSpanPath.getValue1(), new Distance(extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection);
 					final Pair<Position, Position> offSetSpanPathSharpAngleEnd = GeometryUtils.getRectangleEdges(offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleStart.getValue1(), new Distance(extraHingeSpan, defaultDistanceUnit), userSpecifiedDirection.change());
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_1_end", layer, offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleStart.getValue1()));
-					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_2_end", layer, offSetSpanPathSharpAngleEnd.getValue0(), offSetSpanPathSharpAngleStart.getValue0()));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_2_end_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleEnd.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + "_offset_span_sharp_offset_3_end_mark", laserHinge.getSharpAngleLayer(), extraActiveLayers, Lists.<Position>newArrayList(offSetSpanPathSharpAngleEnd.getValue0(), offSetSpanPathSharpAngleStart.getValue1()), defaultDistanceUnit, LaserAction.MARK));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_1_end", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpAngleStart.getValue0(), offSetSpanPathSharpAngleStart.getValue1()));
+					hingeExtraSpan.add(Quartet.with(name + "_offset_span_sharp_2_end", laserHinge.getSharpAngleLayer(), offSetSpanPathSharpAngleEnd.getValue0(), offSetSpanPathSharpAngleStart.getValue0()));
 				}
 			}
 			
 			points.add(hingeEnd);
-
-			final Iterable<String> extraActiveLayers;
-			if (laserCrenel != null) {
-				extraActiveLayers = Iterables.transform(Iterables.filter(laserCrenel.getExtraLayers(), GetActiveLayer(laserCrenel.getName())), LASER_LAYER_TO_STRING);
-			} else if (laserHinge != null) {
-				extraActiveLayers = Iterables.transform(Iterables.filter(laserHinge.getExtraLayers(), GetActiveLayer(laserHinge.getName())), LASER_LAYER_TO_STRING);
-			} else {
-				extraActiveLayers = Collections.emptyList();
-			}
 
 			this.generatedPath = positionContext.registerPath(name, layer, extraActiveLayers, points, defaultDistanceUnit, action);
 			
@@ -1057,7 +1098,22 @@ public class BluePrintParser {
 				positionContext.registerPoint(name + "BottomLeft", layer, bottomLeft);
 				positionContext.registerPoint(name + "TopMiddle", layer, realStart);
 				positionContext.registerPoint(name + "BottomMiddle", layer, realEnd);
-				
+
+
+				// Axle points 1
+				final Vector axle1;
+				try {
+					axle1 = GeometryUtils.getParalellVector(topLeft, bottomLeft, new Distance(
+							varContext.evaluate(laserHinge.getAxleDistance1(), Double.class), defaultDistanceUnit), userSpecifiedDirection.change());
+				} catch (Exception e) {
+					throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
+				}
+				positionContext.registerPoint(name + "TopAxle1", layer, axle1.getPoint1());
+				positionContext.registerPoint(name + "BottomAxle1", layer, axle1.getPoint2());
+				logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
+				this.subPathes.add(positionContext.registerPath(name + "Axle1Mark", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(axle1.getPoint1(), axle1.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
+				// End of Axle points 1
+
 				final double mountSpan = 2 * Math.abs(height.getDistance() - hingeHoleDistance - (hingeHoleDistance + 2*hingeHoleRadius));
 				if (mountSpan <= 0 || !laserHinge.isAutoAxleDistanceCut()) {
 					if (mountSpan == 0) {
@@ -1071,6 +1127,20 @@ public class BluePrintParser {
 					positionContext.registerPoint(name + "BottomRight", layer, beforeAxleMountPoints.getValue1());
 					positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0());
 					positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1());
+
+					// Axle points 2
+					final Vector axle2;
+					try {
+						axle2 = GeometryUtils.getParalellVector(beforeAxleMountPoints.getValue0(), beforeAxleMountPoints.getValue1(), new Distance(
+								varContext.evaluate(laserHinge.getAxleDistance2(), Double.class), defaultDistanceUnit), userSpecifiedDirection);
+					} catch (Exception e) {
+						throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
+					}
+					positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1());
+					positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2());
+					logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
+                    this.subPathes.add(positionContext.registerPath(name + "Axle2Mark", laserHinge.getAxleLayer(), Collections.<String>emptyList(), Lists.<Position>newArrayList(axle2.getPoint1(), axle2.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
+					// End of Axle points 2
 				} else {
 					logger.info("Hinge '" + name + "/" + layer + "' has mount span " + mountSpan + defaultDistanceUnit.getSymbol());
 					final Pair<Position, Position> afterAxleMountPoints = GeometryUtils.getRectangleEdges(realStart, realEnd, new Distance(crenelSegment2Distance.getDistance() + 1.1 * mountSpan, defaultDistanceUnit) , Direction.forward);
@@ -1078,9 +1148,43 @@ public class BluePrintParser {
 					positionContext.registerPoint(name + "BottomRight", layer, afterAxleMountPoints.getValue1());
 					positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0());
 					positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1());
-					this.subPathes.add(positionContext.registerPath(name + "AxleMountSpan", layer, Collections.<String>emptyList(), ImmutableList.of(beforeAxleMountPoints.getValue0(), beforeAxleMountPoints.getValue1()), defaultDistanceUnit, LaserAction.CUT));
+                    this.subPathes.add(positionContext.registerPath(name + "AxleMountSpan", layer, Collections.<String>emptyList(), ImmutableList.of(beforeAxleMountPoints.getValue0(), beforeAxleMountPoints.getValue1()), defaultDistanceUnit, LaserAction.CUT));
+					// Axle points 2
+					final Vector axle2;
+					try {
+						axle2 = GeometryUtils.getParalellVector(beforeAxleMountPoints.getValue0(), beforeAxleMountPoints.getValue1(), new Distance(
+								varContext.evaluate(laserHinge.getAxleDistance2(), Double.class), defaultDistanceUnit), userSpecifiedDirection);
+					} catch (Exception e) {
+						throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
+					}
+					positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1());
+					positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2());
+					logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
+                    this.subPathes.add(positionContext.registerPath(name + "Axle2Mark", laserHinge.getAxleLayer(), Collections.<String>emptyList(), Lists.<Position>newArrayList(axle2.getPoint1(), axle2.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
+					// End of Axle points 2
 				}
-			}
+
+				// Teeth start and end marks
+				String defaultMinMaxSuffix = "Right";
+				String otherMinMaxSuffix = "Left";
+				if (userSpecifiedDirection == Direction.backward) {
+                    defaultMinMaxSuffix = "Left";
+                    otherMinMaxSuffix = "Right";
+                }
+
+                logger.info("Registering teeth starts '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + hingeStart + "' to '" + hingeEnd + "'");
+				positionContext.registerPoint(name + "TeethEndTop" + defaultMinMaxSuffix, laserHinge.getLayer(), hingeStart);
+                positionContext.registerPoint(name + "TeethEndBottom" + defaultMinMaxSuffix, laserHinge.getLayer(), hingeEnd);
+                this.subPathes.add(positionContext.registerPath(name + "TeethEnd" + defaultMinMaxSuffix, laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(hingeStart, hingeEnd), defaultDistanceUnit, LaserAction.MARK));
+
+				if (teethEndStart != null && teethEndEnd != null) {
+				    logger.info("Registering teeth ends '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + teethEndStart + "' to '" + teethEndEnd + "'");
+                    positionContext.registerPoint(name + "TeethEndTop" + otherMinMaxSuffix, laserHinge.getLayer(), teethEndStart);
+                    positionContext.registerPoint(name + "TeethEndBottom" + otherMinMaxSuffix, laserHinge.getLayer(), teethEndEnd);
+                    this.subPathes.add(positionContext.registerPath(name + "TeethEnd" + otherMinMaxSuffix, laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(teethEndStart, teethEndStart), defaultDistanceUnit, LaserAction.MARK));
+                }
+
+            }
 		}
 
 		public String getName() {
@@ -1142,7 +1246,17 @@ public class BluePrintParser {
 			return this.generatedPath.getBorderAction();
 		}
 
-		public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
+        @Override
+        public Optional<LaserAction> getHatchAction() {
+            return Optional.absent();
+        }
+
+        @Override
+        public Iterable<Path> getHatchPath() {
+            return Collections.emptyList();
+        }
+
+        public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
 			final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
 			for (final Path path : subPathes) {
 				if (path.getLayer() == null || StringUtils.isEmpty(path.getLayer().getName()) || Iterables.contains(activeLayers, path.getLayer().getName())) {
@@ -1309,7 +1423,11 @@ public class BluePrintParser {
 			};
 		}
 
-		private Path registerPath(final String name, final String layer, final Iterable<String> extraActiveLayers, final Iterable<Position> points, final DistanceUnit distanceUnit, final LaserAction borderAction) {
+        private Path registerPath(final String name, final String layer, final Iterable<String> extraActiveLayers, final Iterable<Position> points, final DistanceUnit distanceUnit, final LaserAction borderAction) {
+		    return registerPath(name, layer, extraActiveLayers, points, distanceUnit, borderAction, Optional.<LaserAction>absent());
+        }
+
+        private Path registerPath(final String name, final String layer, final Iterable<String> extraActiveLayers, final Iterable<Position> points, final DistanceUnit distanceUnit, final LaserAction borderAction, final Optional<LaserAction> hatchAction) {
 			if (points == null || Iterables.isEmpty(points)) {
 				throw new IllegalArgumentException("Cannot register a path without points");
 			}
@@ -1427,7 +1545,29 @@ public class BluePrintParser {
 					return borderAction;
 				}
 
-				public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
+                @Override
+                public Optional<LaserAction> getHatchAction() {
+				    if (hatchAction == null) {
+				        return Optional.absent();
+                    }
+                    return hatchAction;
+                }
+
+                @Override
+                public Iterable<Path> getHatchPath() {
+                    if (!getHatchAction().isPresent()) {
+                        return Collections.emptyList();
+                    }
+                    final String layerName;
+                    if (getLayer().isActive()) {
+                        layerName = getLayer().getName();
+                    } else {
+                        layerName = "void";
+                    }
+                    return Iterables.transform(GeometryUtils.getHatchVectors(getPoints(), DistanceUnit.MILLIMETERS), GeometryUtils.ToPath(getName() + "_hatch", layerName, Collections.<String>emptyList(), getHatchAction().get(), new AtomicInteger()));
+                }
+
+                public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
 					return Collections.emptyList();
 				}
 

@@ -132,4 +132,5 @@ public class LaserHinge extends LaserDrawing {
 	}
 
 	public boolean isAutoAxleDistanceCut() { return autoAxleDistanceCut; }
+
 }

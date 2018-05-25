@@ -7,7 +7,13 @@ import com.edraw.config.LaserAction;
 import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSingleTransformation implements Transformation, Function<Drawing, Drawing> {
 
@@ -264,7 +270,27 @@ public abstract class AbstractSingleTransformation implements Transformation, Fu
 			public LaserAction getBorderAction() {
 				return path.getBorderAction();
 			}
-		};
+
+			@Override
+			public Optional<LaserAction> getHatchAction() {
+				return path.getHatchAction();
+			}
+
+            @Override
+            public Iterable<Path> getHatchPath() {
+			    if (!getHatchAction().isPresent()) {
+			        return Collections.emptyList();
+                }
+                final String layerName;
+			    if (getLayer().isActive()) {
+			        layerName = getLayer().getName();
+                } else {
+			        layerName = "void";
+                }
+                return Iterables.transform(GeometryUtils.getHatchVectors(getPoints(), DistanceUnit.MILLIMETERS), GeometryUtils.ToPath(getName() + "_hatch", layerName, Collections.<String>emptyList(), getHatchAction().get(), new AtomicInteger()));
+            }
+
+        };
 	}
 	
 	private Point transformPoint(final Point source) {

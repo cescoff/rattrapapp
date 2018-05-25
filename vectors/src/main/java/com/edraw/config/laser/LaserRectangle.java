@@ -44,6 +44,9 @@ public class LaserRectangle extends LaserDrawing {
 	@XmlAttribute(name = "right-action")
 	private String rightAction = LaserAction.CUT.name();
 
+	@XmlAttribute(name = "round-corners-radius")
+	private String roundCornerRadius = null;
+
 	public LaserRectangle() {
 		super();
 	}
@@ -132,4 +135,7 @@ public class LaserRectangle extends LaserDrawing {
 		return rightAction;
 	}
 
+	public String getRoundCornerRadius() {
+		return roundCornerRadius;
+	}
 }

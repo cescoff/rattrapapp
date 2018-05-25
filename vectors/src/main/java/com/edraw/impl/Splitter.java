@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.edraw.Position;
 import com.edraw.Transformation;
+import com.edraw.config.DistanceUnit;
 import com.edraw.config.LaserAction;
 import com.edraw.geom.*;
 import com.edraw.utils.GeometryUtils;
@@ -101,10 +102,10 @@ public class Splitter implements Transformation {
 					}
 				}
 				if (positions0.size() >= 2) {
-					drawings0.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions0, ((Path) drawing).getBorderAction()));
+					drawings0.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions0, ((Path) drawing).getBorderAction(), ((Path) drawing).getHatchAction()));
 				}
 				if (positions1.size() >= 2) {
-					drawings1.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions1, ((Path) drawing).getBorderAction()));
+					drawings1.add(getPath(drawing.getName(), drawing.getLayer().getName(), positions1, ((Path) drawing).getBorderAction(), ((Path) drawing).getHatchAction()));
 				}
 			}
 			final Pair<Iterable<Drawing>, Iterable<Drawing>> subdrawings = split(drawing.getSubDrawings(), globalSplit, false);
@@ -114,8 +115,8 @@ public class Splitter implements Transformation {
 		if (addCut) {
 			logger.info("Adding 'Splitter' path");
 			return Pair.<Iterable<Drawing>, Iterable<Drawing>>with(
-					drawings0.add(getPath("Splitter", null, ImmutableList.<Position>of(splitterLine.getValue0(),  splitterLine.getValue1()), LaserAction.CUT)).build(), 
-					drawings1.add(getPath("Splitter", null, ImmutableList.<Position>of(splitterLine.getValue0(),  splitterLine.getValue1()), LaserAction.CUT)).build());
+					drawings0.add(getPath("Splitter", null, ImmutableList.<Position>of(splitterLine.getValue0(),  splitterLine.getValue1()), LaserAction.CUT, null)).build(),
+					drawings1.add(getPath("Splitter", null, ImmutableList.<Position>of(splitterLine.getValue0(),  splitterLine.getValue1()), LaserAction.CUT, null)).build());
 		}
 		return Pair.<Iterable<Drawing>, Iterable<Drawing>>with(
 				drawings0.build(), 
@@ -196,11 +197,11 @@ public class Splitter implements Transformation {
 //		final Iterable<Position> path0 = ImmutableList.<Position>builder().addAll(spliRectangles.get().getValue0()).add(Iterables.getFirst(spliRectangles.get().getValue0(), null)).build();
 //		final Iterable<Position> path1 = ImmutableList.<Position>builder().addAll(spliRectangles.get().getValue1()).add(Iterables.getFirst(spliRectangles.get().getValue1(), null)).build();
 		
-		return Optional.of(Pair.with(getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction()),
-				getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction())));
+		return Optional.of(Pair.with(getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction(), null),
+				getPath(rectangle.getName(), rectangle.getLayer().getName(), spliRectangles.get().getValue0(), rectangle.getBottomBorderAction(), null)));
 	}
 	
-	private final Path getPath(final String name, final String layer, final Iterable<Position> positions, final LaserAction action) {
+	private final Path getPath(final String name, final String layer, final Iterable<Position> positions, final LaserAction action, final Optional<LaserAction> hatchAction) {
 		if (positions == null || Iterables.size(positions) < 2) {
 			throw new IllegalArgumentException("Cannot create a path with less than 2 positions");
 		}
@@ -289,6 +290,28 @@ public class Splitter implements Transformation {
 			@Override
 			public LaserAction getBorderAction() {
 				return action;
+			}
+
+			@Override
+			public Optional<LaserAction> getHatchAction() {
+				if (hatchAction == null) {
+					return Optional.absent();
+				}
+				return hatchAction;
+			}
+
+			@Override
+			public Iterable<Path> getHatchPath() {
+				if (!getHatchAction().isPresent()) {
+					return Collections.emptyList();
+				}
+				final String layerName;
+				if (getLayer().isActive()) {
+					layerName = getLayer().getName();
+				} else {
+					layerName = "void";
+				}
+				return Iterables.transform(GeometryUtils.getHatchVectors(getPoints(), DistanceUnit.MILLIMETERS), GeometryUtils.ToPath(getName() + "_hatch", layerName, Collections.<String>emptyList(), getHatchAction().get(), new AtomicInteger()));
 			}
 
 			@Override

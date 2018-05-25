@@ -201,6 +201,16 @@ public class LaserArcCircleParser implements LaserDrawingParser<LaserArcCircle> 
         }
 
         @Override
+        public Optional<LaserAction> getHatchAction() {
+            return Optional.absent();
+        }
+
+        @Override
+        public Iterable<Path> getHatchPath() {
+            return Collections.emptyList();
+        }
+
+        @Override
         public String getName() {
             return name;
         }

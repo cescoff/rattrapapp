@@ -119,7 +119,7 @@ public class SVGConverter implements BluePrintConverter {
 		for (final Drawing subDrawing : drawing.getSubDrawings(layers)) {
 			stringBuilder.append(getSVG(subDrawing, layers));
 		}
-		
+
 		final String layer;
 		if (drawing.getLayer() == null || StringUtils.isEmpty(drawing.getLayer().getName())) {
 			layer = "default_layer";
@@ -232,6 +232,11 @@ public class SVGConverter implements BluePrintConverter {
 										"${swidth}", strokeWidth)).append("\n");
 						previous = point;
 					}
+				}
+			}
+			if (path.getHatchAction().isPresent()) {
+				for (final Path hatch : path.getHatchPath()) {
+					stringBuilder.append(getSVG(hatch, layers));
 				}
 			}
 		} else if (drawing instanceof Text) {

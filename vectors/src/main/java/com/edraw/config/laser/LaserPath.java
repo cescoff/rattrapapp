@@ -23,7 +23,10 @@ public class LaserPath extends LaserDrawing {
 	
 	@XmlAttribute
 	private String action = LaserAction.CUT.name();
-	
+
+	@XmlAttribute(name = "hatch-action")
+	private String hatchAction = null;
+
 	public LaserPath() {
 	}
 
@@ -36,5 +39,7 @@ public class LaserPath extends LaserDrawing {
 	}
 
 	public String getFiletRadius() { return filetRadius; }
+
+	public String getHatchAction() { return hatchAction; }
 
 }
