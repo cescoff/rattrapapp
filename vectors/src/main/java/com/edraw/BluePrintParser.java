@@ -1011,7 +1011,7 @@ public class BluePrintParser {
                         if (index == 0) {
                             teethEndStart = extraSpanCutSegment.getValue0();
                         } else if (index == (numberOfCrenels - 1)) {
-                            teethEndEnd = extraSpanCutSegment.getValue0();
+                            teethEndEnd = extraSpanCutSegment.getValue1();
                         }
                         this.subPathes.add(positionContext.registerPath(name + "drop_mark_0_" + index, layer, extraActiveLayers, Lists.<Position>newArrayList(next1, extraSpanCutSegment.getValue1()), defaultDistanceUnit, LaserAction.MARK));
                         this.subPathes.add(positionContext.registerPath(name + "drop_mark_1_" + index, layer, extraActiveLayers, Lists.<Position>newArrayList(next2, extraSpanCutSegment.getValue0()), defaultDistanceUnit, LaserAction.MARK));
@@ -1030,7 +1030,7 @@ public class BluePrintParser {
                         if (index == 0) {
                             teethEndStart = next1;
                         } else if (index == (numberOfCrenels - 1)) {
-                            teethEndEnd = next1;
+                            teethEndEnd = next2;
                         }
                     }
 				}
@@ -1170,23 +1170,23 @@ public class BluePrintParser {
 				}
 
 				// Teeth start and end marks
-				String defaultMinMaxSuffix = "Right";
-				String otherMinMaxSuffix = "Left";
+				String defaultMinMaxSuffix = "Left";
+				String otherMinMaxSuffix = "Right";
 				if (userSpecifiedDirection == Direction.backward) {
-                    defaultMinMaxSuffix = "Left";
-                    otherMinMaxSuffix = "Right";
+                    defaultMinMaxSuffix = "Right";
+                    otherMinMaxSuffix = "Left";
                 }
 
                 logger.info("Registering teeth starts '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + hingeStart + "' to '" + hingeEnd + "'");
                 subPathes.add(positionContext.registerPoint(name + defaultMinMaxSuffix + "TeethEndTop", laserHinge.getLayer(), hingeStart));
-                    subPathes.add(positionContext.registerPoint(name + defaultMinMaxSuffix + "TeethEndBottom", laserHinge.getLayer(), hingeEnd));
+                subPathes.add(positionContext.registerPoint(name + defaultMinMaxSuffix + "TeethEndBottom", laserHinge.getLayer(), hingeEnd));
                 this.subPathes.add(positionContext.registerPath(name + defaultMinMaxSuffix + "TeethEnd", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(hingeStart, hingeEnd), defaultDistanceUnit, LaserAction.MARK));
 
 				if (teethEndStart != null && teethEndEnd != null) {
 				    logger.info("Registering teeth ends '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + teethEndStart + "' to '" + teethEndEnd + "'");
                     subPathes.add(positionContext.registerPoint(name + otherMinMaxSuffix + "TeethEndTop", laserHinge.getLayer(), teethEndStart));
                     subPathes.add(positionContext.registerPoint(name + otherMinMaxSuffix + "TeethEndBottom", laserHinge.getLayer(), teethEndEnd));
-                    this.subPathes.add(positionContext.registerPath(name + otherMinMaxSuffix + "TeethEnd", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(teethEndStart, teethEndStart), defaultDistanceUnit, LaserAction.MARK));
+                    this.subPathes.add(positionContext.registerPath(name + otherMinMaxSuffix + "TeethEnd", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(teethEndStart, teethEndEnd), defaultDistanceUnit, LaserAction.MARK));
                 }
 
             }
