@@ -5,7 +5,7 @@ public enum LaserAction {
 	HIDDEN("1px", "none"),
 	VIEW("1.5px", "black"),
 	CUT("0.1px", "red"),
-	MARK("0.1px", "green");
+	MARK("0.1px", "blue");
 
 	private final String width;
 	
