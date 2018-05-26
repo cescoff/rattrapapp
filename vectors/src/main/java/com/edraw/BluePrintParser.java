@@ -727,7 +727,7 @@ public class BluePrintParser {
 		
 		private Path generatedPath = null;
 
-		private Collection<Path> subPathes = Lists.newArrayList();
+		private Collection<Drawing> subPathes = Lists.newArrayList();
 		
 		public LateBindingCrenel(LaserCrenel laserCrenel) {
 			super();
@@ -1099,10 +1099,10 @@ public class BluePrintParser {
 				}
 				final Pair<Position, Position> beforeAxleMountPoints = GeometryUtils.getRectangleEdges(realStart, realEnd, crenelSegment2Distance, Direction.forward);
 				
-				positionContext.registerPoint(name + "TopLeft", layer, topLeft);
-				positionContext.registerPoint(name + "BottomLeft", layer, bottomLeft);
-				positionContext.registerPoint(name + "TopMiddle", layer, realStart);
-				positionContext.registerPoint(name + "BottomMiddle", layer, realEnd);
+				subPathes.add(positionContext.registerPoint(name + "TopLeft", layer, topLeft));
+                subPathes.add(positionContext.registerPoint(name + "BottomLeft", layer, bottomLeft));
+                subPathes.add(positionContext.registerPoint(name + "TopMiddle", layer, realStart));
+                subPathes.add(positionContext.registerPoint(name + "BottomMiddle", layer, realEnd));
 
 
 				// Axle points 1
@@ -1113,8 +1113,8 @@ public class BluePrintParser {
 				} catch (Exception e) {
 					throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
 				}
-				positionContext.registerPoint(name + "TopAxle1", layer, axle1.getPoint1());
-				positionContext.registerPoint(name + "BottomAxle1", layer, axle1.getPoint2());
+                subPathes.add(positionContext.registerPoint(name + "TopAxle1", layer, axle1.getPoint1()));
+                subPathes.add(positionContext.registerPoint(name + "BottomAxle1", layer, axle1.getPoint2()));
 				logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
 				this.subPathes.add(positionContext.registerPath(name + "Axle1Mark", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(axle1.getPoint1(), axle1.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
 				// End of Axle points 1
@@ -1128,10 +1128,10 @@ public class BluePrintParser {
 					} else {
 						logger.error("Hinge '" + name + "/" + layer + "' has negative mount span (" + mountSpan + ")");
 					}
-					positionContext.registerPoint(name + "TopRight", layer, beforeAxleMountPoints.getValue0());
-					positionContext.registerPoint(name + "BottomRight", layer, beforeAxleMountPoints.getValue1());
-					positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0());
-					positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1());
+                    subPathes.add(positionContext.registerPoint(name + "TopRight", layer, beforeAxleMountPoints.getValue0()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomRight", layer, beforeAxleMountPoints.getValue1()));
+                    subPathes.add(positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1()));
 
 					// Axle points 2
 					final Vector axle2;
@@ -1141,18 +1141,18 @@ public class BluePrintParser {
 					} catch (Exception e) {
 						throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
 					}
-					positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1());
-					positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2());
+                    subPathes.add(positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2()));
 					logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
                     this.subPathes.add(positionContext.registerPath(name + "Axle2Mark", laserHinge.getAxleLayer(), Collections.<String>emptyList(), Lists.<Position>newArrayList(axle2.getPoint1(), axle2.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
 					// End of Axle points 2
 				} else {
 					logger.info("Hinge '" + name + "/" + layer + "' has mount span " + mountSpan + defaultDistanceUnit.getSymbol());
 					final Pair<Position, Position> afterAxleMountPoints = GeometryUtils.getRectangleEdges(realStart, realEnd, new Distance(crenelSegment2Distance.getDistance() + 1.1 * mountSpan, defaultDistanceUnit) , Direction.forward);
-					positionContext.registerPoint(name + "TopRight", layer, afterAxleMountPoints.getValue0());
-					positionContext.registerPoint(name + "BottomRight", layer, afterAxleMountPoints.getValue1());
-					positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0());
-					positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1());
+                    subPathes.add(positionContext.registerPoint(name + "TopRight", layer, afterAxleMountPoints.getValue0()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomRight", layer, afterAxleMountPoints.getValue1()));
+                    subPathes.add(positionContext.registerPoint(name + "TopAxleCut", layer, beforeAxleMountPoints.getValue0()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomAxleCut", layer, beforeAxleMountPoints.getValue1()));
                     this.subPathes.add(positionContext.registerPath(name + "AxleMountSpan", layer, Collections.<String>emptyList(), ImmutableList.of(beforeAxleMountPoints.getValue0(), beforeAxleMountPoints.getValue1()), defaultDistanceUnit, LaserAction.CUT));
 					// Axle points 2
 					final Vector axle2;
@@ -1162,8 +1162,8 @@ public class BluePrintParser {
 					} catch (Exception e) {
 						throw new IllegalStateException("Cannot parse hinge '" + name + "' axle distance 1 '" + laserHinge.getAxleDistance1() + "'", e);
 					}
-					positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1());
-					positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2());
+                    subPathes.add(positionContext.registerPoint(name + "TopAxle2", layer, axle2.getPoint1()));
+                    subPathes.add(positionContext.registerPoint(name + "BottomAxle2", layer, axle2.getPoint2()));
 					logger.info("Adding Axle1 path from '" + axle1.getPoint1() + "' to '" + axle1.getPoint2() + "' on layer '" + laserHinge.getAxleLayer() + "'");
                     this.subPathes.add(positionContext.registerPath(name + "Axle2Mark", laserHinge.getAxleLayer(), Collections.<String>emptyList(), Lists.<Position>newArrayList(axle2.getPoint1(), axle2.getPoint2()), defaultDistanceUnit, LaserAction.MARK));
 					// End of Axle points 2
@@ -1178,15 +1178,15 @@ public class BluePrintParser {
                 }
 
                 logger.info("Registering teeth starts '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + hingeStart + "' to '" + hingeEnd + "'");
-				positionContext.registerPoint(name + "TeethEndTop" + defaultMinMaxSuffix, laserHinge.getLayer(), hingeStart);
-                positionContext.registerPoint(name + "TeethEndBottom" + defaultMinMaxSuffix, laserHinge.getLayer(), hingeEnd);
-                this.subPathes.add(positionContext.registerPath(name + "TeethEnd" + defaultMinMaxSuffix, laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(hingeStart, hingeEnd), defaultDistanceUnit, LaserAction.MARK));
+                subPathes.add(positionContext.registerPoint(name + defaultMinMaxSuffix + "TeethEndTop", laserHinge.getLayer(), hingeStart));
+                    subPathes.add(positionContext.registerPoint(name + defaultMinMaxSuffix + "TeethEndBottom", laserHinge.getLayer(), hingeEnd));
+                this.subPathes.add(positionContext.registerPath(name + defaultMinMaxSuffix + "TeethEnd", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(hingeStart, hingeEnd), defaultDistanceUnit, LaserAction.MARK));
 
 				if (teethEndStart != null && teethEndEnd != null) {
 				    logger.info("Registering teeth ends '" + otherMinMaxSuffix + "' on hinge '" + name + "' from '" + teethEndStart + "' to '" + teethEndEnd + "'");
-                    positionContext.registerPoint(name + "TeethEndTop" + otherMinMaxSuffix, laserHinge.getLayer(), teethEndStart);
-                    positionContext.registerPoint(name + "TeethEndBottom" + otherMinMaxSuffix, laserHinge.getLayer(), teethEndEnd);
-                    this.subPathes.add(positionContext.registerPath(name + "TeethEnd" + otherMinMaxSuffix, laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(teethEndStart, teethEndStart), defaultDistanceUnit, LaserAction.MARK));
+                    subPathes.add(positionContext.registerPoint(name + otherMinMaxSuffix + "TeethEndTop", laserHinge.getLayer(), teethEndStart));
+                    subPathes.add(positionContext.registerPoint(name + otherMinMaxSuffix + "TeethEndBottom", laserHinge.getLayer(), teethEndEnd));
+                    this.subPathes.add(positionContext.registerPath(name + otherMinMaxSuffix + "TeethEnd", laserHinge.getAxleLayer(), extraActiveLayers, Lists.<Position>newArrayList(teethEndStart, teethEndStart), defaultDistanceUnit, LaserAction.MARK));
                 }
 
             }
@@ -1263,7 +1263,7 @@ public class BluePrintParser {
 
         public Iterable<Drawing> getSubDrawings(final Iterable<String> activeLayers) {
 			final ImmutableList.Builder<Drawing> result = ImmutableList.builder();
-			for (final Path path : subPathes) {
+			for (final Drawing path : subPathes) {
 				if (path.getLayer() == null || StringUtils.isEmpty(path.getLayer().getName()) || Iterables.contains(activeLayers, path.getLayer().getName())) {
 					result.add(path);
 				}
