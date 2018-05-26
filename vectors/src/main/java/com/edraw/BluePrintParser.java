@@ -64,7 +64,10 @@ public class BluePrintParser {
                 }
             } else {
                 try {
-                    registerPoint(laserDrawing);
+                    final Optional<Point> point = registerPoint(laserDrawing);
+                    if (point.isPresent()) {
+                        drawings.add(point.get());
+                    }
                     final Optional<Drawing> rectangle = parseRectangle(laserDrawing);
                     if (rectangle.isPresent()) {
                         drawings.add(rectangle.get());
@@ -97,6 +100,8 @@ public class BluePrintParser {
 		
 		final Iterable<Position> allPositions = BluePrintUtils.getAllPositions(drawings);
 		final Rectangle boundingRectangle = GeometryUtils.getBoundingRectangle(null, null, allPositions);
+
+
 
 		return BluePrintUtils.getBluePrint(defaultDistanceUnit, drawings);
 
@@ -191,9 +196,9 @@ public class BluePrintParser {
 		};*/
 	}
 	
-	private void registerPoint(final LaserDrawing laserDrawing) {
+	private Optional<Point> registerPoint(final LaserDrawing laserDrawing) {
 		if (!(laserDrawing instanceof LaserPoint)) {
-			return;
+			return Optional.absent();
 		}
 		final LaserPoint laserPoint = (LaserPoint) laserDrawing;
 		
@@ -202,7 +207,7 @@ public class BluePrintParser {
 		
 		final Position center = getPosition(xRelative, yRelative, laserPoint.getX(), laserPoint.getY());
 		
-		positionContext.registerPoint(laserDrawing.getName(), laserDrawing.getLayer(), center);
+		return Optional.of(positionContext.registerPoint(laserDrawing.getName(), laserDrawing.getLayer(), center));
 	}
 	
 	private Optional<Path> parsePath(final LaserDrawing laserDrawing) {
@@ -410,8 +415,8 @@ public class BluePrintParser {
             }
 
             @Override
-			public void registerPoint(LaserDrawing drawing, Position position) {
-				positionContext.registerPoint(drawing.getName(), drawing.getLayer(), position);
+			public Point registerPoint(LaserDrawing drawing, Position position) {
+				return positionContext.registerPoint(drawing.getName(), drawing.getLayer(), position);
 			}
 
 			@Override
@@ -1361,13 +1366,49 @@ public class BluePrintParser {
 			}
 		}
 
-		private void registerPoint(final String name, final String layer, final Position position) {
+		private Point registerPoint(final String name, final String layer, final Position position) {
 			if (drawingTypes.containsKey(name)) {
 				throw new IllegalStateException("A drawing of type '" + drawingTypes.get(name) + "' has already been defined with name '" + name + "' cannot declare a circle with the same name");
 			}
 			drawingTypes.put(name, DrawingType.POINT);
 			centers.put(name, position);
 			logger.info("Point '" + name + "/" + layer + "' has been registered");
+			return new Point() {
+                @Override
+                public String getName() {
+                    return name;
+                }
+
+                @Override
+                public Layer getLayer() {
+                    return new BasicLayer(layer, true);
+                }
+
+                @Override
+                public Iterable<Layer> getExtraLayers() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public Position getCenter() {
+                    return position;
+                }
+
+                @Override
+                public Rectangle getBoundingRectangle() {
+                    return null;
+                }
+
+                @Override
+                public Iterable<Drawing> getSubDrawings(Iterable<String> activeLayers) {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public Iterable<Drawing> getSubDrawings() {
+                    return Collections.emptyList();
+                }
+            };
 		}
 
 		private Text registerText(final String name, final String layer, final Position center, final String text, final int size, final DistanceUnit distanceUnit, final LaserAction action) {

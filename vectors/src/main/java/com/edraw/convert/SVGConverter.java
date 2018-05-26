@@ -252,6 +252,10 @@ public class SVGConverter implements BluePrintConverter {
 					append(";glyph-orientation-vertical:").append("90").
 				append(";\">").append(text.getText()).
 				append("</text>\n");
+		} else if (drawing instanceof Point) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Drawing '{}' of type '{}' is ignored for output", drawing.getName(), Point.class.getName());
+			}
 		} else {
 			throw new IllegalStateException("Unsupported drawing of type '" + drawing.getClass().getName() + "'");
 		}

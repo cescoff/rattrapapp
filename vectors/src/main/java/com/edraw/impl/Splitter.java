@@ -54,7 +54,7 @@ public class Splitter implements Transformation {
 		
 		for (final Drawing drawing : drawings) {
 			logger.debug("Splitting drawing '" + drawing.getName() + "'");
-			if ((drawing instanceof Point) || (drawing instanceof Circle)) {
+			if ((drawing instanceof Circle)) {
 				if (GeometryUtils.isInPolygon(drawing.getCenter(), globalSplit.getValue0())) {
 					drawings0.add(drawing);
 				} else if (GeometryUtils.isInPolygon(drawing.getCenter(), globalSplit.getValue1())) {

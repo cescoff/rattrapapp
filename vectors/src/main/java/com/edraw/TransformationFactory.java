@@ -64,14 +64,29 @@ public class TransformationFactory {
 			public Transformation apply(LaserTransformation laserTransformation) {
 				if (laserTransformation instanceof LaserRotation) {
 					final LaserRotation laserRotation = (LaserRotation) laserTransformation;
+					if (source.getPoint(laserRotation.getCenterName())== null) {
+						throw new ValidationError(ErrorMessage.create("No splitter point named '" + laserRotation.getCenterName() + "' found in drawing"));
+					}
 					return new Rotation(laserRotation.getAngle(), AngleUnit.valueOf(laserRotation.getAngleUnit()), source.getPoint(laserRotation.getCenterName()));
 				}
 				if (laserTransformation instanceof LaserTranslation) {
 					final LaserTranslation laserTranslation = (LaserTranslation) laserTransformation;
+					if (source.getPoint(laserTranslation.getPoint1())== null) {
+						throw new ValidationError(ErrorMessage.create("No splitter point named '" + laserTranslation.getPoint1() + "' found in drawing"));
+					}
+					if (source.getPoint(laserTranslation.getPoint2())== null) {
+						throw new ValidationError(ErrorMessage.create("No splitter point named '" + laserTranslation.getPoint2() + "' found in drawing"));
+					}
 					return new Translation(source.getPoint(laserTranslation.getPoint1()), source.getPoint(laserTranslation.getPoint2()));
 				}
 				if (laserTransformation instanceof LaserSplitter) {
 					final LaserSplitter laserSplitter = (LaserSplitter) laserTransformation;
+					if (source.getPoint(laserSplitter.getPoint1())== null) {
+						throw new ValidationError(ErrorMessage.create("No splitter point named '" + laserSplitter.getPoint1() + "' found in drawing"));
+					}
+					if (source.getPoint(laserSplitter.getPoint2())== null) {
+						throw new ValidationError(ErrorMessage.create("No splitter point named '" + laserSplitter.getPoint2() + "' found in drawing"));
+					}
 					return new Splitter(source.getPoint(laserSplitter.getPoint1()).getCenter(), source.getPoint(laserSplitter.getPoint2()).getCenter());
 				}
 				throw new IllegalStateException("Transformation of type '" + laserTransformation.getClass().getName() + "' is not supported yet");

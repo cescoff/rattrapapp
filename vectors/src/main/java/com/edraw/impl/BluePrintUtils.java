@@ -15,8 +15,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BluePrintUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(BluePrintUtils.class);
 
 	private BluePrintUtils() {};
 	
@@ -59,6 +63,9 @@ public abstract class BluePrintUtils {
 		
 
 		for (final Drawing drawing : drawings) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Exploring positions in drawing '{}'", drawing.getName());
+			}
 			if (StringUtils.isNotEmpty(drawing.getName()) && (drawing instanceof Point)) {
 				positionIndex.put(drawing.getName(), (Point) drawing);
 			}
