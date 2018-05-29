@@ -263,9 +263,9 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 			parameters: $scope.project.parameters
 		}
 
-		gtag('event', 'Project', {
-  			'event_category' : 'Preview',
-  			'event_label' : 'Preview_' + $scope.project.title
+		gtag('event', 'Preview_Project', {
+  			'event_category' : 'Preview_' + $scope.project.title,
+  			'event_label' : $scope.project.title
 		});
 		renderDynamic.preview(customRenderPostBody, debug, $scope, $http, $sce);
 	};
@@ -292,9 +292,9 @@ app.controller("ProjectPresentation", function($scope, $http, $sce, $location, p
 			enableSplitters: $scope.enableSplitters
 		}
 
-		gtag('event', 'Project', {
-  			'event_category' : 'Download',
-  			'event_label' : 'Download_' + $scope.project.title
+		gtag('event', 'Download_Project', {
+  			'event_category' : 'Download_' + $scope.project.title,
+  			'event_label' : $scope.project.title
 		});
 
 		renderDynamic.export(customRenderPostBody, debug, $scope, $http, $sce);
@@ -379,9 +379,9 @@ app.factory('projectManager', function () {
 							$scope.staticPreview = previewUrls[i].url;
 						}
 					}
-					gtag('event', 'Project', {
-			  			'event_category' : 'Load',
-			  			'event_label' : 'Load_' + $scope.project.title
+					gtag('event', 'View_Project', {
+			  			'event_category' : 'Load_' + $scope.project.title,
+			  			'event_label' : $scope.project.title
 					});
 			}, function errorCallback(response){
 					$scope.project.name = "Error";
