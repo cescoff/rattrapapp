@@ -5,13 +5,9 @@
  */
 package io.swagger.api;
 
+import io.swagger.model.*;
 import io.swagger.model.Error;
-import io.swagger.model.PreviewRenderingRef;
-import io.swagger.model.Project;
-import io.swagger.model.ProjectGenerator;
 import org.springframework.core.io.Resource;
-import io.swagger.model.SearchResult;
-import io.swagger.model.User;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -107,5 +103,14 @@ public interface ApiApi {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
     ResponseEntity<SearchResult> apiSearchGet(@NotNull @ApiParam(value = "The search query", required = true) @Valid @RequestParam(value = "fulltextquery", required = true) String fulltextquery);
+
+    @ApiOperation(value = "", nickname = "apiCoatingProjectsGet", notes = "Searches for coating projects ", response = SearchResult.class, tags={  })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful response", response = SearchResult.class),
+            @ApiResponse(code = 500, message = "Search error", response = Error.class) })
+    @RequestMapping(value = "/api/coatingprojectlist",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<CoatingProjectList> apiCoatingProjectsGet();
 
 }

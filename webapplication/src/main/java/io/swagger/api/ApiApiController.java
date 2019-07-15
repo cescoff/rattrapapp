@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Iterables;
+import com.rattrap.google.data.ProjectLaunch;
+import com.rattrap.google.data.SheetsClient;
 import com.rattrap.spring.ProjectGeneratorFactory;
 import com.rattrap.spring.SwaggerUtils;
 import io.swagger.model.*;
@@ -37,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -235,6 +238,21 @@ public class ApiApiController implements ApiApi {
             }
         })));
         return new ResponseEntity<SearchResult>(searchResult, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<CoatingProjectList> apiCoatingProjectsGet() {
+        final CoatingProjectList result = new CoatingProjectList();
+        try {
+            for (final ProjectLaunch projectLaunch : new SheetsClient().getLaunches()) {
+                result.addProjectsItem(new CoatingProject().id(projectLaunch.getId()).name(projectLaunch.getName()).family(projectLaunch.getFamily()));
+            }
+        } catch (IOException e) {
+            logger.error("Cannot access google apis", e);
+        } catch (GeneralSecurityException e) {
+            logger.error("Cannot access google apis", e);
+        }
+        return new ResponseEntity<CoatingProjectList>(result, HttpStatus.OK);
     }
 
     public ResponseEntity<Resource> apiGenerateprojectPost(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProjectGenerator body) {

@@ -13,6 +13,7 @@
         <module>utils</module>
         <module>webapplication</module>
         <module>standalonepackager</module>
+        <module>googledata</module>
     </modules>
 
     <dependencies>
