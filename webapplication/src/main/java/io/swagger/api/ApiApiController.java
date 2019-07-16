@@ -240,7 +240,6 @@ public class ApiApiController implements ApiApi {
         return new ResponseEntity<SearchResult>(searchResult, HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<CoatingProjectList> apiCoatingProjectsGet() {
         final CoatingProjectList result = new CoatingProjectList();
         try {
