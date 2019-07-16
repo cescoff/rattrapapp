@@ -164,7 +164,7 @@ public class SheetsClient {
     public static void main(String... args) throws IOException, GeneralSecurityException {
         new Log4JConfigurationHelper(new LogConfig("INFO", "run", "test.log",
                 true)).configure();
-        for (final ProjectLaunch projectLaunch : new SheetsClient().getLaunches()) {
+        for (final ProjectLaunch projectLaunch : SheetsClient.getInstance().getLaunches()) {
             System.out.println("ID='" + projectLaunch.getId() + "'");
         }
 
