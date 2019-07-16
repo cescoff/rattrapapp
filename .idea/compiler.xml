@@ -35,7 +35,7 @@
       <module name="rattrap" target="1.5" />
       <module name="standalonepackager" target="1.5" />
       <module name="utils" target="1.5" />
-      <module name="vectors" target="1.6" />
+      <module name="vectors" target="1.8" />
       <module name="webapplication" target="1.8" />
     </bytecodeTargetLevel>
   </component>
