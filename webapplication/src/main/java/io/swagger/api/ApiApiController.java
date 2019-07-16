@@ -243,7 +243,7 @@ public class ApiApiController implements ApiApi {
     public ResponseEntity<CoatingProjectList> apiCoatingProjectsGet() {
         final CoatingProjectList result = new CoatingProjectList();
         try {
-            for (final ProjectLaunch projectLaunch : new SheetsClient().getLaunches()) {
+            for (final ProjectLaunch projectLaunch : SheetsClient.getInstance().getLaunches()) {
                 result.addProjectsItem(new CoatingProject().id(projectLaunch.getId()).name(projectLaunch.getName()).family(projectLaunch.getFamily()));
             }
         } catch (IOException e) {

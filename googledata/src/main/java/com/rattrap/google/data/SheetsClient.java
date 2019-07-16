@@ -25,9 +25,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class SheetsClient {
+
+    private static SheetsClient instance;
+
     private static final String APPLICATION_NAME = "Rattrap JAVA sheets exposer";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private Credential credentials;
+
+    private NetHttpTransport HTTP_TRANSPORT;
 
     /**
      * Global instance of the scopes required by this quickstart.
@@ -35,6 +42,25 @@ public class SheetsClient {
      */
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
     private static final String CREDENTIALS_FILE_NAME = "credentials.json";
+
+    private SheetsClient() {}
+
+    public static synchronized SheetsClient getInstance() {
+        if (instance == null) {
+            instance = new SheetsClient();
+            try {
+                instance.HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+                instance.credentials = instance.getCredentials(instance.HTTP_TRANSPORT);
+            } catch (GeneralSecurityException e) {
+                LoggerFactory.getLogger(SheetsClient.class).error("Failed to load HTTP_TRANSPORT", e);
+                throw new IllegalStateException("Failed to load HTTP_TRANSPORT", e);
+            } catch (IOException e) {
+                LoggerFactory.getLogger(SheetsClient.class).error("Failed to load HTTP_TRANSPORT", e);
+                throw new IllegalStateException("Failed to load HTTP_TRANSPORT", e);
+            }
+        }
+        return instance;
+    }
 
     private File getCredentialsFile() {
         final String systemPropsFilePath = System.getProperty("gdata.credentials.file.path");
@@ -78,17 +104,16 @@ public class SheetsClient {
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8889).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
     public Iterable<ProjectLaunch> getLaunches() throws IOException, GeneralSecurityException {
         final ImmutableList.Builder<ProjectLaunch> result = ImmutableList.builder();
         // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1I3mmF40pFxSjskfl4tiunjGRbisGs0GJ8l2nW0Y2lC8";
         final String range = "SAP!A2:E";
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
         ValueRange response = service.spreadsheets().values()
