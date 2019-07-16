@@ -254,6 +254,18 @@ public class ApiApiController implements ApiApi {
         return new ResponseEntity<CoatingProjectList>(result, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<Boolean> apiCoatingProjectsUpdate(@NotNull @ApiParam(value = "The id of the project", required = true) @Valid @RequestParam(value = "id", required = true) String id, @NotNull @ApiParam(value = "The state to be set on the project", required = true) @Valid @RequestParam(value = "state", required = true) String state) {
+        try {
+            return new ResponseEntity<Boolean>(SheetsClient.getInstance().updateProjectLaunchState(id, state), HttpStatus.OK);
+        } catch (IOException e) {
+            logger.error("Cannot access google apis", e);
+        } catch (GeneralSecurityException e) {
+            logger.error("Cannot access google apis", e);
+        }
+        return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     public ResponseEntity<Resource> apiGenerateprojectPost(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProjectGenerator body) {
         final ProjectConfigBuilder projectConfigBuilder = new ProjectConfigBuilder();
         projectConfigBuilder.withName(body.getName()).

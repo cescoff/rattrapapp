@@ -113,4 +113,13 @@ public interface ApiApi {
             method = RequestMethod.GET)
     ResponseEntity<CoatingProjectList> apiCoatingProjectsGet();
 
+    @ApiOperation(value = "", nickname = "apiCoatingProjectsUpdate", notes = "Updates coating project status ", response = SearchResult.class, tags={  })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful response", response = SearchResult.class),
+            @ApiResponse(code = 500, message = "Search error", response = Error.class) })
+    @RequestMapping(value = "/api/coatingprojectupdate",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<Boolean> apiCoatingProjectsUpdate(@NotNull @ApiParam(value = "The id of the project", required = true) @Valid @RequestParam(value = "id", required = true) String id, @NotNull @ApiParam(value = "The state to be set on the project", required = true) @Valid @RequestParam(value = "state", required = true) String state);
+
 }

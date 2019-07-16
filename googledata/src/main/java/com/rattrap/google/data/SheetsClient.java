@@ -12,7 +12,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.api.services.sheets.v4.model.*;
 import com.google.common.collect.ImmutableList;
 import com.rattrap.utils.Log4JConfigurationHelper;
 import com.rattrap.utils.LogConfig;
@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +34,9 @@ public class SheetsClient {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
+    private static final String spreadsheetId = "1I3mmF40pFxSjskfl4tiunjGRbisGs0GJ8l2nW0Y2lC8";
+
+
     private Credential credentials;
 
     private NetHttpTransport HTTP_TRANSPORT;
@@ -40,7 +45,7 @@ public class SheetsClient {
      * Global instance of the scopes required by this quickstart.
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
-    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+    private static final List<String> SCOPES = ImmutableList.of(SheetsScopes.SPREADSHEETS, SheetsScopes.DRIVE);
     private static final String CREDENTIALS_FILE_NAME = "credentials.json";
 
     private SheetsClient() {}
@@ -111,7 +116,6 @@ public class SheetsClient {
     public Iterable<ProjectLaunch> getLaunches() throws IOException, GeneralSecurityException {
         final ImmutableList.Builder<ProjectLaunch> result = ImmutableList.builder();
         // Build a new authorized API client service.
-        final String spreadsheetId = "1I3mmF40pFxSjskfl4tiunjGRbisGs0GJ8l2nW0Y2lC8";
         final String range = "SAP!A2:E";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
                 .setApplicationName(APPLICATION_NAME)
@@ -157,6 +161,44 @@ public class SheetsClient {
         return result.build();
     }
 
+    public boolean updateProjectLaunchState(final String id, final String state) throws IOException, GeneralSecurityException {
+        if (StringUtils.isEmpty(id)) {
+            return false;
+        }
+        int position = 1;
+        for (final ProjectLaunch projectLaunch : getLaunches()) {
+            if (id.equals(projectLaunch.getId())) {
+                Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
+                        .setApplicationName(APPLICATION_NAME)
+                        .build();
+
+                List<Request> requests = new ArrayList<Request>();
+
+                List<CellData> values = new ArrayList<CellData>();
+
+                values.add(new CellData()
+                        .setUserEnteredValue(new ExtendedValue()
+                                        .setStringValue(state)
+                        ));
+                requests.add(new Request()
+                        .setUpdateCells(new UpdateCellsRequest()
+                                .setStart(new GridCoordinate()
+                                        .setSheetId(0)
+                                        .setRowIndex(position)
+                                        .setColumnIndex(3))
+                                .setRows(Arrays.asList(
+                                        new RowData().setValues(values))).setFields("userEnteredValue,userEnteredFormat.backgroundColor")));
+                BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest()
+                        .setRequests(requests);
+                service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest)
+                        .execute();
+                return true;
+            }
+            position++;
+        }
+        return false;
+    }
+
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -167,6 +209,6 @@ public class SheetsClient {
         for (final ProjectLaunch projectLaunch : SheetsClient.getInstance().getLaunches()) {
             System.out.println("ID='" + projectLaunch.getId() + "'");
         }
-
+        SheetsClient.getInstance().updateProjectLaunchState("118221", "TOTO");
     }
 }
