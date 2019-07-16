@@ -11,13 +11,16 @@ public class ProjectLaunch {
 
     private String family;
 
+    private String state;
+
     public ProjectLaunch() {
     }
 
-    public ProjectLaunch(String id, String name, String family) {
+    public ProjectLaunch(String id, String name, String family, String state) {
         this.id = id;
         this.name = name;
         this.family = family;
+        this.state = state;
     }
 
     public String getId() {
@@ -30,5 +33,9 @@ public class ProjectLaunch {
 
     public String getFamily() {
         return family;
+    }
+
+    public String getState() {
+        return state;
     }
 }

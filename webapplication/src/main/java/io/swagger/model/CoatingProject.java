@@ -27,6 +27,10 @@ public class CoatingProject {
   @JsonProperty("family")
   private String family = null;
 
+  @JsonProperty("state")
+  private String state = null;
+
+
   public CoatingProject id(String id) {
     this.id = id;
     return this;
@@ -85,6 +89,19 @@ public class CoatingProject {
 
   public void setFamily(String family) {
     this.family = family;
+  }
+
+  public CoatingProject state(String state) {
+    this.state = state;
+    return this;
+  }
+
+  public void setState(String state) {
+    this.state = state;
+  }
+
+  public String getState() {
+    return this.state;
   }
 
 }

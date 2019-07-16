@@ -131,10 +131,12 @@ public class SheetsClient {
                 final Object idObj = row.get(0);
                 final Object nameObj = row.get(1);
                 final Object familyObj = row.get(2);
+                final Object stateObj = row.get(3);
 
                 final String id;
                 final String name;
                 final String family;
+                final String state;
                 if (idObj != null) {
                     id = idObj.toString();
                 } else {
@@ -153,7 +155,13 @@ public class SheetsClient {
                     family = null;
                 }
 
-                result.add(new ProjectLaunch(id, name, family));
+                if (stateObj != null) {
+                    state = stateObj.toString();
+                } else {
+                    state = null;
+                }
+
+                result.add(new ProjectLaunch(id, name, family, state));
                 // Print columns A and E, which correspond to indices 0 and 4.
 //                System.out.printf("%s, %s\n", row.get(0), row.get(4));
             }
