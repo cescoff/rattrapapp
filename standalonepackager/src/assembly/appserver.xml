@@ -17,6 +17,7 @@
                 <include>com.rattrap:utils</include>
                 <include>com.rattrap:vectors</include>
                 <include>com.rattrap:webapplication</include>
+                <include>com.rattrap:googledata</include>
             </includes>
             <binaries>
                 <outputDirectory>lib</outputDirectory>
