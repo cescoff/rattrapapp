@@ -128,10 +128,34 @@ public class SheetsClient {
             System.out.println("No data found.");
         } else {
             for (List row : values) {
-                final Object idObj = row.get(0);
-                final Object nameObj = row.get(1);
-                final Object familyObj = row.get(2);
-                final Object stateObj = row.get(3);
+                final Object idObj;
+                final Object nameObj;
+                final Object familyObj;
+                final Object stateObj;
+
+                if (row.size() > 0) {
+                    idObj = row.get(0);
+                } else {
+                    idObj = null;
+                }
+
+                if (row.size() > 1) {
+                    nameObj = row.get(1);
+                } else {
+                    nameObj = null;
+                }
+
+                if (row.size() > 2) {
+                    familyObj = row.get(2);
+                } else {
+                    familyObj = null;
+                }
+
+                if (row.size() > 3) {
+                    stateObj = row.get(3);
+                } else {
+                    stateObj = null;
+                }
 
                 final String id;
                 final String name;
