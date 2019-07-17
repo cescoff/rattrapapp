@@ -132,6 +132,7 @@ public class SheetsClient {
                 final Object nameObj;
                 final Object familyObj;
                 final Object stateObj;
+                final Object imageObj;
 
                 if (row.size() > 0) {
                     idObj = row.get(0);
@@ -157,10 +158,19 @@ public class SheetsClient {
                     stateObj = null;
                 }
 
+                if (row.size() > 4) {
+                    imageObj = row.get(4);
+                } else {
+                    imageObj = null;
+                }
+
+
+
                 final String id;
                 final String name;
                 final String family;
                 final String state;
+                final String image;
                 if (idObj != null) {
                     id = idObj.toString();
                 } else {
@@ -185,7 +195,13 @@ public class SheetsClient {
                     state = null;
                 }
 
-                result.add(new ProjectLaunch(id, name, family, state));
+                if (imageObj != null) {
+                    image = imageObj.toString();
+                } else {
+                    image = null;
+                }
+
+                result.add(new ProjectLaunch(id, name, family, state, null));
                 // Print columns A and E, which correspond to indices 0 and 4.
 //                System.out.printf("%s, %s\n", row.get(0), row.get(4));
             }

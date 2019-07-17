@@ -13,14 +13,17 @@ public class ProjectLaunch {
 
     private String state;
 
+    private String image;
+
     public ProjectLaunch() {
     }
 
-    public ProjectLaunch(String id, String name, String family, String state) {
+    public ProjectLaunch(String id, String name, String family, String state, String image) {
         this.id = id;
         this.name = name;
         this.family = family;
         this.state = state;
+        this.image = image;
     }
 
     public String getId() {
@@ -37,5 +40,9 @@ public class ProjectLaunch {
 
     public String getState() {
         return state;
+    }
+
+    public String getImage() {
+        return image;
     }
 }

@@ -244,7 +244,12 @@ public class ApiApiController implements ApiApi {
         final CoatingProjectList result = new CoatingProjectList();
         try {
             for (final ProjectLaunch projectLaunch : SheetsClient.getInstance().getLaunches()) {
-                result.addProjectsItem(new CoatingProject().id(projectLaunch.getId()).name(projectLaunch.getName()).family(projectLaunch.getFamily()).state(projectLaunch.getState()));
+                result.addProjectsItem(new CoatingProject().
+                        id(projectLaunch.getId()).
+                        name(projectLaunch.getName()).
+                        family(projectLaunch.getFamily()).
+                        state(projectLaunch.getState()).
+                        image(projectLaunch.getImage()));
             }
         } catch (IOException e) {
             logger.error("Cannot access google apis", e);

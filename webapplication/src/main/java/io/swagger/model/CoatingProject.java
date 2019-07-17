@@ -30,6 +30,9 @@ public class CoatingProject {
   @JsonProperty("state")
   private String state = null;
 
+  @JsonProperty("image")
+  private String image = null;
+
 
   public CoatingProject id(String id) {
     this.id = id;
@@ -104,5 +107,17 @@ public class CoatingProject {
     return this.state;
   }
 
+  public CoatingProject image(String image) {
+    this.image = image;
+    return this;
+  }
+
+  public String getImage() {
+    return image;
+  }
+
+  public void setImage(String image) {
+    this.image = image;
+  }
 }
 
