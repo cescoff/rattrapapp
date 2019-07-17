@@ -247,7 +247,7 @@ public class SheetsClient {
                                 .setStart(new GridCoordinate()
                                         .setSheetId(0)
                                         .setRowIndex(position)
-                                        .setColumnIndex(3))
+                                        .setColumnIndex(4))
                                 .setRows(Arrays.asList(
                                         new RowData().setValues(values))).setFields("userEnteredValue,userEnteredFormat.backgroundColor")));
                 BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest()
