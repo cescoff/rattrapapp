@@ -9,6 +9,8 @@ public class ProjectLaunch {
 
     private String name;
 
+    private String description;
+
     private String family;
 
     private String state;
@@ -18,9 +20,10 @@ public class ProjectLaunch {
     public ProjectLaunch() {
     }
 
-    public ProjectLaunch(String id, String name, String family, String state, String image) {
+    public ProjectLaunch(String id, String name, String description, String family, String state, String image) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.family = family;
         this.state = state;
         this.image = image;
@@ -44,5 +47,9 @@ public class ProjectLaunch {
 
     public String getImage() {
         return image;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

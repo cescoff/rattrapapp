@@ -247,6 +247,7 @@ public class ApiApiController implements ApiApi {
                 result.addProjectsItem(new CoatingProject().
                         id(projectLaunch.getId()).
                         name(projectLaunch.getName()).
+                        description(projectLaunch.getDescription()).
                         family(projectLaunch.getFamily()).
                         state(projectLaunch.getState()).
                         image(projectLaunch.getImage()));

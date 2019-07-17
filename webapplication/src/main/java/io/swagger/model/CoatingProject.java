@@ -24,6 +24,9 @@ public class CoatingProject {
   @JsonProperty("name")
   private String name = null;
 
+  @JsonProperty("description")
+  private String description = null;
+
   @JsonProperty("family")
   private String family = null;
 
@@ -118,6 +121,19 @@ public class CoatingProject {
 
   public void setImage(String image) {
     this.image = image;
+  }
+
+  public CoatingProject description(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }
 

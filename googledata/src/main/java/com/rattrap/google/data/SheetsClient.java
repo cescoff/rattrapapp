@@ -116,7 +116,7 @@ public class SheetsClient {
     public Iterable<ProjectLaunch> getLaunches() throws IOException, GeneralSecurityException {
         final ImmutableList.Builder<ProjectLaunch> result = ImmutableList.builder();
         // Build a new authorized API client service.
-        final String range = "SAP!A2:E";
+        final String range = "SAP!A2:F";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
@@ -130,6 +130,7 @@ public class SheetsClient {
             for (List row : values) {
                 final Object idObj;
                 final Object nameObj;
+                final Object descriptionObj;
                 final Object familyObj;
                 final Object stateObj;
                 final Object imageObj;
@@ -147,19 +148,25 @@ public class SheetsClient {
                 }
 
                 if (row.size() > 2) {
-                    familyObj = row.get(2);
+                    descriptionObj = row.get(2);
+                } else {
+                    descriptionObj = null;
+                }
+
+                if (row.size() > 3) {
+                    familyObj = row.get(3);
                 } else {
                     familyObj = null;
                 }
 
-                if (row.size() > 3) {
-                    stateObj = row.get(3);
+                if (row.size() > 4) {
+                    stateObj = row.get(4);
                 } else {
                     stateObj = null;
                 }
 
-                if (row.size() > 4) {
-                    imageObj = row.get(4);
+                if (row.size() > 5) {
+                    imageObj = row.get(5);
                 } else {
                     imageObj = null;
                 }
@@ -168,6 +175,7 @@ public class SheetsClient {
 
                 final String id;
                 final String name;
+                final String description;
                 final String family;
                 final String state;
                 final String image;
@@ -181,6 +189,12 @@ public class SheetsClient {
                     name = nameObj.toString();
                 } else {
                     name = null;
+                }
+
+                if (descriptionObj != null) {
+                    description = descriptionObj.toString();
+                } else {
+                    description = null;
                 }
 
                 if (familyObj != null) {
@@ -201,7 +215,7 @@ public class SheetsClient {
                     image = null;
                 }
 
-                result.add(new ProjectLaunch(id, name, family, state, image));
+                result.add(new ProjectLaunch(id, name, description, family, state, image));
                 // Print columns A and E, which correspond to indices 0 and 4.
 //                System.out.printf("%s, %s\n", row.get(0), row.get(4));
             }
