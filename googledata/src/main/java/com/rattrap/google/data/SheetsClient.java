@@ -201,7 +201,7 @@ public class SheetsClient {
                     image = null;
                 }
 
-                result.add(new ProjectLaunch(id, name, family, state, null));
+                result.add(new ProjectLaunch(id, name, family, state, image));
                 // Print columns A and E, which correspond to indices 0 and 4.
 //                System.out.printf("%s, %s\n", row.get(0), row.get(4));
             }
